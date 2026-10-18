@@ -37,6 +37,10 @@ class TouchScreenController final : public Controller
     int m_screenHeight = 0;
     //! Actual touch device to use
     int m_actualDevice = -1;
+    //! Physical gamepad (for example, built-in one of the handheld consoles), if connected
+    SDL_GameController *m_pad = nullptr;
+    //! Countdown to the next search of a gamepad
+    int m_padScanDelay = 0;
 public:
     struct FingerState
     {
@@ -62,7 +66,7 @@ public:
     /*!
      * \brief Destructor
      */
-    ~TouchScreenController() override = default;
+    ~TouchScreenController() override;
 
     /*!
      * \brief Read current state of keyboard controller
@@ -70,6 +74,12 @@ public:
     void update() override;
 
     void processTouchDevice(int dev_i);
+
+private:
+    //! Find and open a gamepad if it's not opened yet, or drop it when disconnected
+    void refreshPad();
+    //! Read state of the gamepad into keys with the default player-1 mapping
+    void processPad();
 };
 
 

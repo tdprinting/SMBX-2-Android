@@ -197,6 +197,13 @@ TouchScreenController::TouchScreenController() :
             m_screenWidth, m_screenHeight);
 }
 
+TouchScreenController::~TouchScreenController()
+{
+    if(m_pad)
+        SDL_GameControllerClose(m_pad);
+    m_pad = nullptr;
+}
+
 static void updateKeyValue(bool &key, bool &key_pressed, bool state)
 {
     key_pressed = (state && !key);
@@ -302,7 +309,7 @@ void TouchScreenController::processTouchDevice(int dev_i)
             {
                 if(st.heldKey[key]) // set key on
                 {
-                    updateFingerKeyState(found->second, keys, key, true);
+                    updateFingerKeyState(st, keys, key, true);
                     st.heldKeyPrev[key] = st.heldKey[key];
                     // Also: when more than one touch devices found, choose one which is actual
                     // Otherwise, the spam of on/off events will happen
@@ -345,8 +352,101 @@ void TouchScreenController::processTouchDevice(int dev_i)
     }
 }
 
+void TouchScreenController::refreshPad()
+{
+    if(m_pad && !SDL_GameControllerGetAttached(m_pad))
+    {
+        D_pLogDebugNA("Gamepad was disconnected, returning to the touch-screen controls");
+        SDL_GameControllerClose(m_pad);
+        m_pad = nullptr;
+        m_fingers.clear();
+        keys = noKeys();
+    }
+
+    if(m_pad)
+        return;
+
+    // Don't scan every frame
+    if(m_padScanDelay > 0)
+    {
+        m_padScanDelay--;
+        return;
+    }
+    m_padScanDelay = 60;
+
+    int num = SDL_NumJoysticks();
+    for(int i = 0; i < num; i++)
+    {
+        if(!SDL_IsGameController(i))
+            continue;
+        m_pad = SDL_GameControllerOpen(i);
+        if(m_pad)
+        {
+            D_pLogDebug("Using gamepad \"%s\" instead of the touch-screen", SDL_GameControllerName(m_pad));
+            keys = noKeys();
+            m_fingers.clear();
+            break;
+        }
+    }
+}
+
+void TouchScreenController::processPad()
+{
+    const Sint16 dead = 16000;
+    auto btn = [this](SDL_GameControllerButton b)->bool
+    {
+        return SDL_GameControllerGetButton(m_pad, b) != 0;
+    };
+    auto axis = [this](SDL_GameControllerAxis a)->Sint16
+    {
+        return SDL_GameControllerGetAxis(m_pad, a);
+    };
+
+    bool left  = btn(SDL_CONTROLLER_BUTTON_DPAD_LEFT)  || axis(SDL_CONTROLLER_AXIS_LEFTX) < -dead;
+    bool right = btn(SDL_CONTROLLER_BUTTON_DPAD_RIGHT) || axis(SDL_CONTROLLER_AXIS_LEFTX) > dead;
+    bool up    = btn(SDL_CONTROLLER_BUTTON_DPAD_UP)    || axis(SDL_CONTROLLER_AXIS_LEFTY) < -dead;
+    bool down  = btn(SDL_CONTROLLER_BUTTON_DPAD_DOWN)  || axis(SDL_CONTROLLER_AXIS_LEFTY) > dead;
+
+    // A - jump, X - run, B - alt-jump (spin), Y - alt-run (shoot/attack)
+    bool jump    = btn(SDL_CONTROLLER_BUTTON_A);
+    bool run     = btn(SDL_CONTROLLER_BUTTON_X) ||
+                   btn(SDL_CONTROLLER_BUTTON_LEFTSHOULDER) || btn(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+    bool altjump = btn(SDL_CONTROLLER_BUTTON_B) || axis(SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > dead;
+    bool altrun  = btn(SDL_CONTROLLER_BUTTON_Y) || axis(SDL_CONTROLLER_AXIS_TRIGGERLEFT) > dead;
+    bool drop    = btn(SDL_CONTROLLER_BUTTON_BACK);
+    bool start   = btn(SDL_CONTROLLER_BUTTON_START);
+
+    auto upd = [](bool &key, bool &pressed, bool state)
+    {
+        pressed = (state && !key);
+        key = state;
+    };
+
+    upd(keys.left, keys.left_pressed, left);
+    upd(keys.right, keys.right_pressed, right);
+    upd(keys.up, keys.up_pressed, up);
+    upd(keys.down, keys.down_pressed, down);
+    upd(keys.jump, keys.jump_pressed, jump);
+    upd(keys.run, keys.run_pressed, run);
+    upd(keys.alt_jump, keys.alt_jump_pressed, altjump);
+    upd(keys.alt_run, keys.alt_run_pressed, altrun);
+    upd(keys.drop, keys.drop_pressed, drop);
+    upd(keys.start, keys.start_pressed, start);
+}
+
 void TouchScreenController::update()
 {
+#ifdef __ANDROID__
+    // A physical gamepad (built-in or external) takes over the on-screen controls
+    refreshPad();
+    if(m_pad)
+    {
+        processPad();
+        Controller::update();
+        return;
+    }
+#endif
+
     if(m_touchDevicesCount == 0)
         return; // Nothing to do
 
@@ -354,6 +454,7 @@ void TouchScreenController::update()
     if(m_actualDevice >= 0)
     {
         processTouchDevice(m_actualDevice);
+        Controller::update();
         return;
     }
     // Otherwise, find it
