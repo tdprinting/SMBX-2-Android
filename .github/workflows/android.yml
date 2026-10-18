@@ -69,14 +69,19 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
+      # ubuntu-latest ships the Android SDK (ANDROID_HOME). android-actions/setup-android@v3 fails on it
+      # ("Failed to find package 'tools'"), so use the preinstalled sdkmanager directly.
       - name: Install SDK packages (platform, build-tools, CMake, NDK)
         run: |
+          SDKMANAGER=$(ls -d "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | sort -V | tail -n 1)
+          if [ -z "$SDKMANAGER" ]; then
+            echo "::error::sdkmanager not found under $ANDROID_HOME/cmdline-tools"
+            exit 1
+          fi
+          echo "Using $SDKMANAGER"
           # Accept licenses non-interactively; yes(1) gets SIGPIPE once sdkmanager exits, hence || true
-          (yes || true) | sdkmanager --licenses > /dev/null || true
-          sdkmanager --install \
+          (yes || true) | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" --install \
             "platforms;android-34" \
             "build-tools;34.0.0" \
             "platform-tools" \
