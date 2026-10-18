@@ -178,6 +178,8 @@ android {
         externalNativeBuild {
             cmake {
                 path "../../../CMakeLists.txt"
+                // Must match the cmake;3.22.1 installed by .github/workflows/android.yml
+                version "3.22.1"
             }
         }
 
@@ -195,6 +197,20 @@ android {
             }
         }
     }
+}
+
+// Engine translations: Engine/languages/*.qm must be packaged as assets/languages/ (the engine opens
+// "languages/<file>" relative to the APK assets). CMake also copies them there at configure time, but
+// that depends on configure order, so Gradle copies them too before assets are merged.
+// src/main/assets/languages is git-ignored (see Engine/android-project/.gitignore).
+tasks.register('copyEngineLanguages', Copy) {
+    from(file('../../languages')) {
+        include '*.qm'
+    }
+    into file('src/main/assets/languages')
+}
+tasks.matching { it.name.startsWith('merge') && it.name.endsWith('Assets') }.configureEach {
+    dependsOn 'copyEngineLanguages'
 }
 
 dependencies {

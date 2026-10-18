@@ -159,6 +159,10 @@ elseif(NOT MSVC)
         if(ANDROID)
             set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -funwind-tables")
             set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -funwind-tables")
+            # Release: drop unused sections and align LOAD segments to 16 KB (required on Android 15+ devices with 16 KB pages).
+            # CMAKE_*_LINKER_FLAGS_RELEASE is what CMake applies; LINK_FLAGS_RELEASE is never read by this build.
+            set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} -Wl,--gc-sections -Wl,-z,max-page-size=16384")
+            set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,--gc-sections -Wl,-z,max-page-size=16384")
         elseif(NINTENDO_DS)
             # use -Os by default for all build types
             string(REGEX REPLACE "-O3" "-Os"

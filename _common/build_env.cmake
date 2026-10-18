@@ -28,7 +28,14 @@ endif()
 set(CMAKE_OSX_DEPLOYMENT_TARGET ${PGE_OSX_TARGET})
 
 if(ANDROID)
-    set(ANDROID_PLATFORM "android-16")
+    # Gradle passes -DANDROID_PLATFORM=android-24 (minSdk 24); only fall back when nothing was given.
+    if(NOT DEFINED ANDROID_PLATFORM OR "${ANDROID_PLATFORM}" STREQUAL "")
+        set(ANDROID_PLATFORM "android-24")
+    endif()
+    # Accept a bare API level ("24") and normalise it to the "android-NN" form the NDK toolchain expects.
+    if("${ANDROID_PLATFORM}" MATCHES "^[0-9]+$")
+        set(ANDROID_PLATFORM "android-${ANDROID_PLATFORM}")
+    endif()
 endif()
 
 if(POLICY CMP0058) # Dependencies

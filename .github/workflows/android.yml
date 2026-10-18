@@ -17,10 +17,51 @@ jobs:
     timeout-minutes: 120
 
     steps:
+      # "recursive" is required: SDL2 is a nested submodule of _Libs/AudioCodecs.
       - name: Check out repository (with submodules)
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      # The native SDL2 comes from the _Libs/AudioCodecs/SDL2 submodule, but the Java side
+      # (Engine/android-project/moondust/src/main/java/org/libsdl/app/SDLActivity.java) hard-codes
+      # the SDL version it expects. SDLActivity reports "SDL C/Java version mismatch" at runtime when
+      # they differ, so the constants there MUST match the pinned submodule. Fail here, early and clearly.
+      # Note: the Java constant SDL_MICRO_VERSION corresponds to SDL_PATCHLEVEL in SDL_version.h.
+      - name: Check SDL2 native and Java versions match
+        run: |
+          set -eu
+          HDR=_Libs/AudioCodecs/SDL2/include/SDL_version.h
+          JAVA=Engine/android-project/moondust/src/main/java/org/libsdl/app/SDLActivity.java
+          if [ ! -f "$HDR" ]; then
+            echo "::error file=$HDR::$HDR is missing. The SDL2 submodule (nested in _Libs/AudioCodecs) was not checked out. Check that the submodule gitlinks are committed and that .gitmodules matches them."
+            exit 1
+          fi
+          if [ ! -f "$JAVA" ]; then
+            echo "::error file=$JAVA::$JAVA is missing."
+            exit 1
+          fi
+          hdr_const() { sed -n "s/^#define $1[[:space:]][[:space:]]*\([0-9][0-9]*\).*/\1/p" "$HDR" | head -n 1; }
+          java_const() { sed -n "s/.*int $1 = \([0-9][0-9]*\);.*/\1/p" "$JAVA" | head -n 1; }
+          H_MAJ=$(hdr_const SDL_MAJOR_VERSION)
+          H_MIN=$(hdr_const SDL_MINOR_VERSION)
+          H_PAT=$(hdr_const SDL_PATCHLEVEL)
+          J_MAJ=$(java_const SDL_MAJOR_VERSION)
+          J_MIN=$(java_const SDL_MINOR_VERSION)
+          J_PAT=$(java_const SDL_MICRO_VERSION)
+          echo "SDL2 native (SDL_version.h):    ${H_MAJ:-?}.${H_MIN:-?}.${H_PAT:-?}"
+          echo "SDL2 Java   (SDLActivity.java): ${J_MAJ:-?}.${J_MIN:-?}.${J_PAT:-?}"
+          for v in "$H_MAJ" "$H_MIN" "$H_PAT" "$J_MAJ" "$J_MIN" "$J_PAT"; do
+            if [ -z "$v" ]; then
+              echo "::error::Could not read all SDL version fields from $HDR and $JAVA"
+              exit 1
+            fi
+          done
+          if [ "$H_MAJ.$H_MIN.$H_PAT" != "$J_MAJ.$J_MIN.$J_PAT" ]; then
+            echo "::error::SDL2 version mismatch: native $H_MAJ.$H_MIN.$H_PAT ($HDR) vs Java $J_MAJ.$J_MIN.$J_PAT ($JAVA). Update the Java constants or re-pin the SDL2 submodule so they match."
+            exit 1
+          fi
+          echo "SDL2 native and Java versions match."
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -51,12 +92,16 @@ jobs:
         working-directory: Engine/android-project
         run: chmod +x ./gradlew
 
+      # Primary artifact: the debug APK (arm64-v8a). It is signed with the debug keystore and installable.
       - name: Build debug APK (arm64-v8a)
         working-directory: Engine/android-project
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Build release APK (arm64-v8a)
+      # Best-effort only: CI has no release keystore, so this APK is UNSIGNED and cannot be installed.
+      # Install the debug APK instead. Kept so release-only compile problems still show up in CI logs.
+      - name: Build release APK (arm64-v8a, unsigned, best-effort)
         working-directory: Engine/android-project
+        continue-on-error: true
         run: ./gradlew assembleRelease --stacktrace
 
       - name: Upload APKs

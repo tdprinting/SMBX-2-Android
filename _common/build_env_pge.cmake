@@ -49,18 +49,13 @@ if(ANDROID)
         set(ANDROID_STL "c++_static")
     endif()
 
-    if(NOT DEFINED ANDROID_PLATFORM)
-        set(ANDROID_PLATFORM 16)
-    endif()
-
+    # ANDROID_PLATFORM (android-NN) is defaulted and normalised in build_env.cmake, which is included above.
     set(ANDROID_CMAKE_FLAGS
         "-DANDROID_ABI=${ANDROID_ABI}"
         "-DANDROID_NDK=${ANDROID_NDK}"
         "-DANDROID_STL=c++_static"
         "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
         "-DANDROID_PLATFORM=${ANDROID_PLATFORM}"
-        "-DANDROID_TOOLCHAIN=${ANDROID_TOOLCHAIN}"
-        "-DANDROID_NATIVE_API_LEVEL=${ANDROID_NATIVE_API_LEVEL}"
         "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
         "-DANDROID_ARM_NEON=${ANDROID_ARM_NEON}"
     )
