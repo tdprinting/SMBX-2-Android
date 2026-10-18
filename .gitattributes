@@ -18,3 +18,8 @@ CMakeLists.txt		text eol=lf
 *.cmake				text eol=lf
 *.png				binary
 *.qm				binary
+
+# Gradle wrapper script must keep LF endings to run on Linux/macOS checkouts
+Engine/android-project/gradlew	text eol=lf
+# Gradle wrapper jar is binary; never run it through line-ending conversion
+*.jar		binary

@@ -149,3 +149,9 @@ PVS-Studio.pri
 
 *.directory
 
+
+# Android (Engine/android-project): signing keys and app bundles.
+# Gradle/CMake build outputs are covered by Engine/android-project/.gitignore.
+*.jks
+*.keystore
+*.aab
