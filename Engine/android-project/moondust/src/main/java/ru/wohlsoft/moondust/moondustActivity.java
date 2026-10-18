@@ -13,6 +13,12 @@ import android.provider.Settings;
 import android.hardware.input.InputManager;
 import android.view.Display;
 import android.view.InputDevice;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -58,6 +64,20 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
     private Bundle m_savedInstanceState = null;
     //! On-screen controls overlay (hidden when a physical gamepad is connected)
     private LinearLayout m_touchOverlay = null;
+    //! Small "Mods" button, visible only together with the touch overlay (no gamepad)
+    private Button m_modsButton = null;
+    //! Select+Start long-press tracking (opens the mod browser)
+    private boolean m_selectDown = false, m_startDown = false;
+    private final Handler m_comboHandler = new Handler(Looper.getMainLooper());
+    private final Runnable m_comboRun = new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            if(m_selectDown && m_startDown)
+                openModBrowser();
+        }
+    };
 
     protected String[] getLibraries()
     {
@@ -106,6 +126,18 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
         addContentView(ll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT));
         m_touchOverlay = ll;
+
+        m_modsButton = new Button(this);
+        m_modsButton.setText("Mods");
+        m_modsButton.setAllCaps(false);
+        m_modsButton.setAlpha(0.7f);
+        m_modsButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) { openModBrowser(); }
+        });
+        addContentView(m_modsButton, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.END));
 
         InputManager im = (InputManager)getSystemService(Context.INPUT_SERVICE);
         if(im != null)
@@ -180,6 +212,8 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
             {
                 if(m_touchOverlay != null)
                     m_touchOverlay.setVisibility(pad ? View.INVISIBLE : View.VISIBLE);
+                if(m_modsButton != null)
+                    m_modsButton.setVisibility(pad ? View.GONE : View.VISIBLE);
             }
         });
     }
@@ -250,6 +284,43 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
         }
 
         return true;
+    }
+
+    /** Open the in-app mod browser. Safe to call from any thread (JNI: method "openModBrowser", signature "()V"
+     *  on the activity object returned by SDL_AndroidGetActivity(), or the static variant below). */
+    public void openModBrowser()
+    {
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                startActivity(new Intent(moondustActivity.this, ModBrowserActivity.class));
+            }
+        });
+    }
+
+    /** Static JNI-friendly entry: GetStaticMethodID(cls, "openModBrowserStatic", "()V") */
+    public static void openModBrowserStatic()
+    {
+        if(mSingleton instanceof moondustActivity)
+            ((moondustActivity)mSingleton).openModBrowser();
+    }
+
+    /** Select+Start held for ~1.2 s opens the mod browser; events are still passed to the game. */
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event)
+    {
+        int k = event.getKeyCode();
+        if(k == KeyEvent.KEYCODE_BUTTON_SELECT || k == KeyEvent.KEYCODE_BUTTON_START)
+        {
+            boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
+            if(k == KeyEvent.KEYCODE_BUTTON_SELECT) m_selectDown = down; else m_startDown = down;
+            m_comboHandler.removeCallbacks(m_comboRun);
+            if(m_selectDown && m_startDown)
+                m_comboHandler.postDelayed(m_comboRun, 1200);
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     public static native void setKeyPos(int cmd, float left, float top, float right, float bottom);

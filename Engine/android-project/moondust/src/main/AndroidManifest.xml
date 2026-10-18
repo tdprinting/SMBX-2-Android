@@ -40,6 +40,9 @@
     <!-- This game needs to have the resource directory at user's storage to allow easier customization and episodes placement -->
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
 
+    <!-- In-app mod browser (ModBrowserActivity) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Allow access to the vibrator -->
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Allow access to Bluetooth devices -->
@@ -97,6 +100,14 @@
             </intent-filter>
             -->
         </activity>
+        <!-- In-app browser to download and install mods -->
+        <activity android:name="ModBrowserActivity"
+            android:label="Mod Browser"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|uiMode|density"
+            android:windowSoftInputMode="adjustPan"
+            android:exported="false"
+            />
     </application>
 
 </manifest>

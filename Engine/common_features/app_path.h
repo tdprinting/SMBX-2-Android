@@ -21,6 +21,7 @@
 #define APP_PATH_H
 
 #include <string>
+#include <vector>
 
 extern std::string  ApplicationPathSTD;
 
@@ -37,6 +38,29 @@ public:
     static void install();
     static bool isPortable();
     static bool userDirIsAvailable();
+
+    /**
+     * @brief Folder with shared user episodes (userdir/episodes/), trailing '/'.
+     *        Created on Android at startup. Not scanned by the engine menus by itself,
+     *        see modEpisodeDirs().
+     */
+    static std::string episodesDir();
+    /**
+     * @brief Folder with user mods (userdir/mods/), trailing '/'.
+     *        Created on Android at startup.
+     */
+    static std::string modsDir();
+    /**
+     * @brief Episode container folders (each one holds episode sub-folders with .wld/.wldx files),
+     *        in the same layout as the engine's worlds folder: userdir/episodes/ and
+     *        userdir/mods/<mod>/episodes/. Only existing folders are returned, each with trailing '/'.
+     */
+    static std::vector<std::string> modEpisodeDirs();
+    /**
+     * @brief Config pack container folders found inside mods (userdir/mods/<mod>/configs/),
+     *        same layout as userdir/configs/. Only existing folders are returned, each with trailing '/'.
+     */
+    static std::vector<std::string> modConfigDirs();
 #ifdef __EMSCRIPTEN__
     static void syncFs();
 #endif

@@ -29,8 +29,8 @@ import java.util.zip.ZipFile;
 public class ModInstaller
 {
     // ---------------------------------------------------------------- Destination (EDIT HERE) ----
-    /** Root folder on the external storage. NOTE: the engine currently still uses "/sdcard/PGE Project";
-     *  change these constants when the engine side layout is finalized (see MODS_ANDROID.md if present). */
+    /** Must match MOONDUST_ANDROID_SHARED_DIR ("/sdcard/Moondust") in Engine/common_features/app_path.cpp,
+     *  which creates episodes/, configs/ and mods/ there. Change these if that layout changes. */
     public static final String ROOT_DIR_NAME     = "Moondust";
     public static final String EPISODES_SUBDIR   = "episodes";
     public static final String CONFIGS_SUBDIR    = "configs";
