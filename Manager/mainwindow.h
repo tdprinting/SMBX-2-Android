@@ -1,0 +1,84 @@
+#pragma once
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QMainWindow>
+#include <http_downloader/http_downloader.h>
+#include <QQueue>
+#include "config_packs.h"
+#include <QToolButton>
+
+namespace Ui {
+class MainWindow;
+}
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    static bool autoRefresh; //whether or not to auto refresh on startup
+
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
+    HttpDownloader downloader;
+    QString tempDir;
+
+    enum ActionQueueEnum
+    {
+        ACT_DOWNLOAD_FILE=0,
+        ACT_PARSE_CPACK_LIST_XML,
+        ACT_UNPACK_ZIP,
+        ACT_REBUILD_CPACK_LIST,
+        ACT_LOCK_CONFIG_PAGE,
+        ACT_UNLOCK_CONFIG_PAGE,
+        ACT_SHOWMSG
+    };
+
+    struct ActionQueueItem
+    {
+        ActionQueueEnum type;
+        QString param1;
+        QString param2;
+        QString param3;
+        QString param4;
+    };
+
+    QQueue<ActionQueueItem > queue;
+    ActionQueueItem          currentAct;
+    int curstep;
+    int totalSteps;
+
+private slots:
+    void on_actionRepositories_triggered();
+    void on_refresh_clicked();
+    void updateConfigPacksList();
+    void on_actionExit_triggered();
+
+    void queueStepBegin();
+    void downloadSuccess();
+    void downloadAborted();
+    void downloadFailed(QString reason);
+    void setProgress(qint64 bytesRead, qint64 totalBytes);
+
+    void cancelStatusBarButtonClicked();
+
+    void on_actionAuto_Refresh_on_Startup_triggered();
+
+protected:
+    void closeEvent(QCloseEvent* e);
+
+private:
+    void buildConfigPackList();
+    void clearCPACKList();
+    void addItemToCPACKList(ConfigPackInfo &rp);
+    void refreshRepos();
+
+    Ui::MainWindow *ui;
+
+    QToolButton* cancelStatusBarButton;
+
+
+};
+
+#endif // MAINWINDOW_H

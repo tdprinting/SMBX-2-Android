@@ -1,0 +1,1141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CustomMusicSetup</class>
+ <widget class="QDialog" name="CustomMusicSetup">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>432</width>
+    <height>1339</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Music setup</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../qt_modules.qrc">
+    <normaloff>:/moondust/playmusic.png</normaloff>:/moondust/playmusic.png</iconset>
+  </property>
+  <property name="floating" stdset="0">
+   <bool>true</bool>
+  </property>
+  <layout class="QGridLayout" name="kokokoko">
+   <item row="2" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="playMusicProxy">
+     <property name="text">
+      <string>Play music</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QTabWidget" name="setupZone">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tabMidi">
+      <attribute name="title">
+       <string notr="true">MIDI</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="1" colspan="3">
+        <widget class="QComboBox" name="midiSynth"/>
+       </item>
+       <item row="1" column="2">
+        <widget class="QDoubleSpinBox" name="midiGainAbs">
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="value">
+          <double>2.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="4">
+        <widget class="QGroupBox" name="midiSetupADL">
+         <property name="title">
+          <string>Extra settings</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1000,1">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetMinimumSize</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string comment="The OPL3 timbre/instruments bank to change the MIDI music sounding.">Bank:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QPushButton" name="midiExAdlBrowsebank">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="midiExAdlCustomBank">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="2">
+           <widget class="QComboBox" name="midiExAdlBank">
+            <property name="toolTip">
+             <string>The timbre bank declares the sounding of MIDI music. Use different banks to compare the sounding difference.</string>
+            </property>
+            <property name="maxVisibleItems">
+             <number>50</number>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0" colspan="2">
+           <widget class="QCheckBox" name="midiExAdlDeepVibrato">
+            <property name="text">
+             <string>Deep vibrato</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="tristate">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>Custom bank:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2">
+           <widget class="QComboBox" name="midiExAdlVolumeModel">
+            <property name="toolTip">
+             <string>Volume model declares how music volumes, note velocities and expression will be scaled.</string>
+            </property>
+            <property name="maxVisibleItems">
+             <number>20</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSpinBox" name="midiExAdlChips">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>The number of emulated OPL3 chips. Increase the count of chips to get wider polyphony (18 of two-operator voices per chip, or 6 four-operator voices per chip), or decrease it if you have the choppy music playback.</string>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>4</number>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" colspan="3">
+           <widget class="QCheckBox" name="midiExAdlAutoArpeggio">
+            <property name="toolTip">
+             <string comment="Tool tip for the &quot;Automatic arpeggio&quot; checkbox" extracomment="There is a term of the sound generator chip that has limited polyphony: each channel of chip is able to play only one parallel note. So, if one chip supports 6 channels, you can play 6 notes at the same time.">When there are not enough free voice channels of chips, some chords will squash into arpeggio that will use only one channel. However, this method may cause a dirty and glitchy sounding. So, use this feature at your own risk.</string>
+            </property>
+            <property name="text">
+             <string>Automatic arpeggio</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0" colspan="2">
+           <widget class="QCheckBox" name="midiExAdlDeepTremolo">
+            <property name="text">
+             <string>Deep tremolo</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="tristate">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="midiExAdlChipsEn">
+            <property name="text">
+             <string>Chips number:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Volume model:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_21">
+            <property name="text">
+             <string>Channel allocation mode:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" colspan="2">
+           <widget class="QComboBox" name="midiExAdlChanAlloc">
+            <property name="toolTip">
+             <string comment="Tooltip for the &quot;Channel allocation mode&quot; combo box">Select one of the channel allocation algorithms:
+- [Auto]: The algorithm will be selected automatically depending on the bank or currently playing music format.
+- Sounding off delay based: The channel will be allocated regarding the remaining delay of releasing sound left to play (Shorted remaing delay will have the highest priority).
+- Same instrument: Any first released channel of the same instrument will be taken (or any if no channels of the same instrument played before)
+- Any first released: Any first released channel will be taken without bothering about properties.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Synthesizer type:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QPushButton" name="midiGainReset">
+         <property name="text">
+          <string>Reset</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QSlider" name="midiTempo">
+         <property name="minimumSize">
+          <size>
+           <width>139</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>200</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>25</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QDoubleSpinBox" name="midiTempoAbs">
+         <property name="minimum">
+          <double>0.010000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>100.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="value">
+          <double>1.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="3">
+        <widget class="QPushButton" name="midiTempoReset">
+         <property name="text">
+          <string>Reset</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="4">
+        <widget class="QGroupBox" name="midiSetupOPN">
+         <property name="title">
+          <string>Extra settings</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetMinimumSize</enum>
+          </property>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="midiExOpnBrowsebank">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="QComboBox" name="midiExOpnVolumeModel">
+            <property name="toolTip">
+             <string>Volume model declares how music volumes, note velocities and expression will be scaled.</string>
+            </property>
+            <property name="maxVisibleItems">
+             <number>20</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>Custom bank:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="midiExOpnChipsEn">
+            <property name="text">
+             <string>Chips number:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="3">
+           <widget class="QCheckBox" name="midiExOpnAutoArpeggio">
+            <property name="toolTip">
+             <string comment="Tool tip for the &quot;Automatic arpeggio&quot; checkbox" extracomment="There is a term of the sound generator chip that has limited polyphony: each channel of chip is able to play only one parallel note. So, if one chip supports 6 channels, you can play 6 notes at the same time.">When there are not enough free voice channels of chips, some chords will squash into arpeggio that will use only one channel. However, this method may cause a dirty and glitchy sounding. So, use this feature at your own risk.</string>
+            </property>
+            <property name="text">
+             <string>Automatic arpeggio</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="midiExOpnChips">
+            <property name="toolTip">
+             <string>The number of emulated OPL3 chips. Increase the count of chips to get wider polyphony (18 of two-operator voices per chip, or 6 four-operator voices per chip), or decrease it if you have the choppy music playback.</string>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>8</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Volume model:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="midiExOpnCustomBank">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string notr="true"/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_22">
+            <property name="text">
+             <string>Channel allocation mode:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2">
+           <widget class="QComboBox" name="midiExOpnChanAlloc">
+            <property name="toolTip">
+             <string comment="Tooltip for the &quot;Channel allocation mode&quot; combo box">Select one of the channel allocation algorithms:
+- [Auto]: The algorithm will be selected automatically depending on the bank or currently playing music format.
+- Sounding off delay based: The channel will be allocated regarding the remaining delay of releasing sound left to play (Shorted remaing delay will have the highest priority).
+- Same instrument: Any first released channel of the same instrument will be taken (or any if no channels of the same instrument played before)
+- Any first released: Any first released channel will be taken without bothering about properties.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSlider" name="midiGain">
+         <property name="minimumSize">
+          <size>
+           <width>139</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximum">
+          <number>400</number>
+         </property>
+         <property name="value">
+          <number>200</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>50</number>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="4">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>2</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="midiGainLabel">
+         <property name="text">
+          <string>Gain:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="midiTempoLabel">
+         <property name="text">
+          <string>Tempo:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0" colspan="4">
+        <widget class="QGroupBox" name="midiSetupFluid">
+         <property name="title">
+          <string>Extra settings</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_7" columnstretch="0,0">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetMinimumSize</enum>
+          </property>
+          <item row="2" column="1">
+           <widget class="QPushButton" name="midiExFluidSFRemove">
+            <property name="text">
+             <string>Remove</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <widget class="QGroupBox" name="fluidGeneral">
+            <property name="title">
+             <string comment="FluidSynth general options group">General</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_8" columnstretch="0,10">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_15">
+               <property name="text">
+                <string comment="FluidSynth option">Max polyphony</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QSpinBox" name="midiExFluidPolyphony">
+               <property name="minimum">
+                <number>8</number>
+               </property>
+               <property name="maximum">
+                <number>512</number>
+               </property>
+               <property name="value">
+                <number>256</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>SoundFont banks list (can be re-ordered by drag &amp; drop)</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="midiExFluidSFAdd">
+            <property name="text">
+             <string>Add</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" rowspan="3">
+           <widget class="QListWidget" name="midiExFluidSFList">
+            <property name="dragEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="dragDropMode">
+             <enum>QAbstractItemView::InternalMove</enum>
+            </property>
+            <property name="defaultDropAction">
+             <enum>Qt::MoveAction</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0" colspan="2">
+           <widget class="QGroupBox" name="midiExFluidReverb">
+            <property name="title">
+             <string comment="FluidSynth option">Reverb</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <layout class="QGridLayout" name="gridLayout" columnstretch="0,10">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetMinimumSize</enum>
+             </property>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string comment="FluidSynth: Reverb effect option">Room size</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QDoubleSpinBox" name="midiExFluidRD">
+               <property name="decimals">
+                <number>4</number>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_5">
+               <property name="text">
+                <string comment="FluidSynth: Reverb effect option">Damping</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label_13">
+               <property name="text">
+                <string comment="FluidSynth: Reverb effect option">Width</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QDoubleSpinBox" name="midiExFluidRW">
+               <property name="decimals">
+                <number>4</number>
+               </property>
+               <property name="maximum">
+                <double>100.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QDoubleSpinBox" name="midiExFluidRR">
+               <property name="decimals">
+                <number>4</number>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_14">
+               <property name="text">
+                <string comment="FluidSynth: Reverb effect option">Level</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QDoubleSpinBox" name="midiExFluidRL">
+               <property name="decimals">
+                <number>4</number>
+               </property>
+               <property name="maximum">
+                <double>1.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.010000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="7" column="0" colspan="2">
+           <widget class="QGroupBox" name="midiExFluidChorus">
+            <property name="title">
+             <string comment="FluidSynth option">Chorus</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_9" columnstretch="0,10">
+             <item row="0" column="1">
+              <widget class="QSpinBox" name="midiExFluidCN"/>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_16">
+               <property name="text">
+                <string comment="FluidSynth: Chorus effect option">Level</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label_18">
+               <property name="text">
+                <string comment="FluidSynth: Chorus effect option">Speed</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QDoubleSpinBox" name="midiExFluidCS">
+               <property name="decimals">
+                <number>4</number>
+               </property>
+               <property name="minimum">
+                <double>0.100000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>5.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QDoubleSpinBox" name="midiExFluidCL">
+               <property name="decimals">
+                <number>4</number>
+               </property>
+               <property name="maximum">
+                <double>10.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_19">
+               <property name="text">
+                <string comment="FluidSynth: Chorus effect option">Depth (ms)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_17">
+               <property name="text">
+                <string comment="FluidSynth: Chorus effect option">Voice count (N)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QDoubleSpinBox" name="midiExFluidCD">
+               <property name="decimals">
+                <number>4</number>
+               </property>
+               <property name="minimum">
+                <double>0.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>21.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="label_20">
+               <property name="text">
+                <string comment="FluidSynth: Chorus effect option">Type</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QComboBox" name="midiExFluidCT"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabChiptune">
+      <attribute name="title">
+       <string>Chiptune</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayoutGME" rowstretch="0,0,0,0,0,0,0,1000">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMinimumSize</enum>
+       </property>
+       <item row="4" column="3" colspan="2">
+        <widget class="QDoubleSpinBox" name="gmeTempoAbs">
+         <property name="minimum">
+          <double>0.010000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>100.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="value">
+          <double>1.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Gain:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="5">
+        <widget class="QPushButton" name="gmeGainReset">
+         <property name="text">
+          <string>Reset</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1" colspan="2">
+        <widget class="QSlider" name="gmeTempo">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>200</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>25</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="6">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Track number</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetMinimumSize</enum>
+          </property>
+          <item row="1" column="0">
+           <widget class="QPushButton" name="gmeGoToFirst">
+            <property name="text">
+             <string>To begin</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="gmeTrackNumber">
+            <property name="maximum">
+             <number>99999</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QPushButton" name="gmePrevTrack">
+            <property name="text">
+             <string>Previous</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="gmeNextTrack">
+            <property name="text">
+             <string>Next</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="4" column="5">
+        <widget class="QPushButton" name="gmeTempoReset">
+         <property name="text">
+          <string>Reset</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0" colspan="6">
+        <widget class="QCheckBox" name="gmeDisableSpcEcho">
+         <property name="toolTip">
+          <string comment="Tooltip for the &quot;Disable SPC echo&quot; checkbox">Disable the echo effect while playing files of SPC format</string>
+         </property>
+         <property name="text">
+          <string>Disable SPC echo</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Tempo:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3" colspan="2">
+        <widget class="QDoubleSpinBox" name="gmeGainAbs">
+         <property name="maximum">
+          <double>100.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="value">
+          <double>1.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" colspan="2">
+        <widget class="QSlider" name="gmeGain">
+         <property name="maximum">
+          <number>400</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>50</number>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0" colspan="6">
+        <spacer name="gmeSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Minimum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="5" column="0" colspan="6">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabPxTone">
+      <attribute name="title">
+       <string notr="true">PXTONE</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayoutPxTone" rowstretch="0,0,0,100">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_24">
+         <property name="text">
+          <string>Gain:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QSlider" name="pxtoneGain">
+         <property name="maximum">
+          <number>400</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>50</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QDoubleSpinBox" name="pxtoneGainAbs">
+         <property name="maximum">
+          <double>100.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="value">
+          <double>1.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QPushButton" name="pxtoneGainReset">
+         <property name="text">
+          <string>Reset</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_23">
+         <property name="text">
+          <string>Tempo:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSlider" name="pxtoneTempo">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>200</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>25</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QDoubleSpinBox" name="pxtoneTempoAbs">
+         <property name="minimum">
+          <double>0.010000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>100.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="value">
+          <double>1.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QPushButton" name="pxtoneTempoReset">
+         <property name="text">
+          <string>Reset</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="4">
+        <widget class="Line" name="line_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="4">
+        <spacer name="pxtoneSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Minimum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QLabel" name="label_12">
+     <property name="text">
+      <string>Tip: to preview the settings result, enable music playing, please. (Look for the play/stop note icon on the main window toolbar).</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../qt_modules.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>midiExAdlChipsEn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>midiExAdlChips</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>120</x>
+     <y>263</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>303</x>
+     <y>265</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>midiExOpnChipsEn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>midiExOpnChips</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>127</x>
+     <y>441</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>303</x>
+     <y>443</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>CustomMusicSetup</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>124</x>
+     <y>523</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>415</x>
+     <y>473</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>CustomMusicSetup</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>210</x>
+     <y>523</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>416</x>
+     <y>505</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,1158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LvlWarpBox</class>
+ <widget class="QDockWidget" name="LvlWarpBox">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>339</width>
+    <height>767</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>400</width>
+    <height>524287</height>
+   </size>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::NoFocus</enum>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../_resources/editor.qrc">
+    <normaloff>:/toolbar/dock/doors.png</normaloff>:/toolbar/dock/doors.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <property name="allowedAreas">
+   <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+  </property>
+  <property name="windowTitle">
+   <string>Warps and Doors</string>
+  </property>
+  <widget class="QScrollArea" name="root">
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <property name="verticalScrollBarPolicy">
+    <enum>Qt::ScrollBarAsNeeded</enum>
+   </property>
+   <property name="sizeAdjustPolicy">
+    <enum>QAbstractScrollArea::AdjustToContents</enum>
+   </property>
+   <property name="widgetResizable">
+    <bool>true</bool>
+   </property>
+   <widget class="QWidget" name="warpsBoxScrollerRoot">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>-199</y>
+      <width>325</width>
+      <height>947</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_6" rowstretch="0,0,0,0,0,0,10000">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMinAndMaxSize</enum>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>2</number>
+     </property>
+     <property name="horizontalSpacing">
+      <number>2</number>
+     </property>
+     <item row="4" column="0" colspan="2">
+      <widget class="QGroupBox" name="warpBoxWTW">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="title">
+        <string>Warp to World map</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMinAndMaxSize</enum>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>X:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="WarpToMapX">
+          <property name="toolTip">
+           <string>Target coordinates of player on the world map
+when you exit from a level through this warp.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Y:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="WarpToMapY">
+          <property name="toolTip">
+           <string>Target coordinates of player on the world map
+when you exit from a level through this warp.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="WarpGetXYFromWorldMap">
+          <property name="toolTip">
+           <string>Browse the world map to set an exit point</string>
+          </property>
+          <property name="text">
+           <string>Set</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="6" column="0" colspan="2">
+      <spacer name="bottomSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::MinimumExpanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="5" column="1">
+      <widget class="QGroupBox" name="warpBoxWTL">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="title">
+        <string>Warp to other level</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_3" columnstretch="8000,8000,0">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMinAndMaxSize</enum>
+        </property>
+        <item row="1" column="0" colspan="2">
+         <widget class="QLineEdit" name="WarpLevelFile">
+          <property name="toolTip">
+           <string>If this field is not empty, player will travel from the current level to the specified one.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="3">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Level file:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" colspan="2">
+         <widget class="QSpinBox" name="WarpToExitNu">
+          <property name="toolTip">
+           <string>Determines the warp through which the player will enter the target level.
+If set to zero, the player will start at the pre-defined level start point.</string>
+          </property>
+          <property name="maximum">
+           <number>10000</number>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0" colspan="3">
+         <spacer name="verticalSpacer_10">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="0" colspan="3">
+         <widget class="QCheckBox" name="WarpHideLevelEnterScreen">
+          <property name="contextMenuPolicy">
+           <enum>Qt::CustomContextMenu</enum>
+          </property>
+          <property name="toolTip">
+           <string>Show a blank screen instead of loading screen.
+In the Legacy Engine level loading screen, it would otherwise 
+show the current playable character(s) and number of lives.</string>
+          </property>
+          <property name="text">
+           <string>Hide level enter screen</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string comment="Translate as &quot;Door #&quot;">Warp #</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0" colspan="3">
+         <widget class="QCheckBox" name="WarpAllowNPC_IL">
+          <property name="contextMenuPolicy">
+           <enum>Qt::CustomContextMenu</enum>
+          </property>
+          <property name="toolTip">
+           <string>Brings the player's held item to the target level of this warp.</string>
+          </property>
+          <property name="text">
+           <string>Allow inter-level NPC</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QToolButton" name="WarpBrowseLevels">
+          <property name="toolTip">
+           <string>Browse for another level file</string>
+          </property>
+          <property name="text">
+           <string notr="true">...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="2">
+      <widget class="QGroupBox" name="warpBoxCannon">
+       <property name="title">
+        <string>Cannon shoot exit</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_7" rowstretch="0,0" columnstretch="0,90">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMinAndMaxSize</enum>
+        </property>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Projectile speed:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QDoubleSpinBox" name="WarpCannonSpeed">
+          <property name="toolTip">
+           <string>The speed at which the player will exit the warp.
+Measured in pixels per 1/65 seconds.</string>
+          </property>
+          <property name="decimals">
+           <number>10</number>
+          </property>
+          <property name="maximum">
+           <double>99999.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>10.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="2">
+         <widget class="QCheckBox" name="WarpEnableCannon">
+          <property name="toolTip">
+           <string>The direction in which the player will exit the warp.</string>
+          </property>
+          <property name="text">
+           <string>Cannon exit</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="2">
+      <widget class="QFrame" name="warpsListManage">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,0,0">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QComboBox" name="warpsList">
+          <property name="toolTip">
+           <string>Choose a warp entry to edit</string>
+          </property>
+          <property name="maxVisibleItems">
+           <number>50</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="entryAdd">
+          <property name="minimumSize">
+           <size>
+            <width>25</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Create a new warp entry.
+Every warp point pair requires a warp entry.</string>
+          </property>
+          <property name="text">
+           <string notr="true">+</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="entryRemove">
+          <property name="minimumSize">
+           <size>
+            <width>25</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Remove current warp entry with all placed points.</string>
+          </property>
+          <property name="text">
+           <string notr="true">-</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="entryClone">
+          <property name="minimumSize">
+           <size>
+            <width>25</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Create the duplicate warp entry with same settings (except for already placed points)</string>
+          </property>
+          <property name="text">
+           <string notr="true">Duplicate</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../_resources/editor.qrc">
+            <normaloff>:/images/copy_16x16.png</normaloff>:/images/copy_16x16.png</iconset>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="2">
+      <widget class="QGroupBox" name="warpBoxDirect">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="title">
+        <string>Pipe direction</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMinAndMaxSize</enum>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>2</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
+        </property>
+        <item>
+         <widget class="QGroupBox" name="WarpEntranceGrp">
+          <property name="title">
+           <string>Entrance</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMinimumSize</enum>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="DirectionSwitchWidget" name="entrance" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>60</width>
+               <height>60</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="WarpExitGrp">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="title">
+           <string>Exit</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <layout class="QGridLayout" name="gridLayout">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMinimumSize</enum>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="DirectionSwitchWidget" name="exit" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>60</width>
+               <height>60</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QGroupBox" name="warpBoxMain">
+       <property name="title">
+        <string>Main</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5" rowstretch="0,0,0,0,0,0,0,0,0,0,10000" columnstretch="0,100,0">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMinimumSize</enum>
+        </property>
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="WarpEntrancePlaced">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Point already placed</string>
+          </property>
+          <property name="text">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0" colspan="3">
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="WarpExitPlaced">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Point already placed</string>
+          </property>
+          <property name="text">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QCheckBox" name="WarpTwoWay">
+          <property name="toolTip">
+           <string>Allow entering from both sides of this warp.</string>
+          </property>
+          <property name="text">
+           <string>Two-way warp</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" rowspan="5">
+         <widget class="QFrame" name="frame_3">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMinimumSize</enum>
+           </property>
+           <property name="leftMargin">
+            <number>2</number>
+           </property>
+           <property name="topMargin">
+            <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>2</number>
+           </property>
+           <property name="bottomMargin">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QCheckBox" name="WarpNoVehicles">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>Any mounted vehicles will be removed
+when player passes through this warp.
+They will be given back when player
+finishes the level or lose a life.</string>
+             </property>
+             <property name="text">
+              <string comment="In the SMBX - this option named as &quot;No Yoshi&quot;">No Vehicles</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="WarpAllowNPC">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>Player can carry items and NPCs through this warp.</string>
+             </property>
+             <property name="text">
+              <string comment="Please, translate as &quot;Allow items&quot;">Allow NPC</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="WarpLock">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>Entrance closed with a lock. Need a key to open it.</string>
+             </property>
+             <property name="text">
+              <string>Locked</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="WarpBombNeed">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>Entrance closed with a lock. Need to blow up the lock to open it.</string>
+             </property>
+             <property name="text">
+              <string>Bomb needed</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="WarpSpecialStateOnly">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>The player can only enter this warp under a special state.
+The special state is defined by the active configuration pack.</string>
+             </property>
+             <property name="text">
+              <string>Sp. State only</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="warpNeedsFloor">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>This warp can be entered in only condition when a player stands on the floor. This option does not affects Instant and Portal warp types.</string>
+             </property>
+             <property name="text">
+              <string>Needs floor</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_8">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Ignored</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="WarpSetExit">
+          <property name="toolTip">
+           <string>Place exit point or quickly jump to existing warp</string>
+          </property>
+          <property name="text">
+           <string>Set Exit</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0" colspan="3">
+         <spacer name="verticalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Ignored</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="WarpSetEntrance">
+          <property name="toolTip">
+           <string>Place entrance point or quickly jump to already placed</string>
+          </property>
+          <property name="text">
+           <string>Set Entrance</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0" colspan="3">
+         <widget class="QFrame" name="frame">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,80">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMinimumSize</enum>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_90">
+             <property name="text">
+              <string>Layer:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="WarpLayer">
+             <property name="maxVisibleItems">
+              <number>50</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="6" column="0" colspan="3">
+         <widget class="QFrame" name="frame_2">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>141</height>
+           </size>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_4" columnstretch="0,60">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMinimumSize</enum>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="horizontalSpacing">
+            <number>5</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>0</number>
+           </property>
+           <item row="7" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Need stars</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QLineEdit" name="WarpNeedAStarsMsg">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>Message which will be shown if the player
+does not have the required number of stars</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QSpinBox" name="WarpNeedAStars">
+             <property name="toolTip">
+              <string>Required number of stars
+to enter this warp</string>
+             </property>
+             <property name="maximum">
+              <number>10000</number>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QLabel" name="WarpNeedAStarsMsg_label">
+             <property name="text">
+              <string>Need stars message</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0" colspan="2">
+            <widget class="Line" name="line_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="0" colspan="2">
+            <widget class="QCheckBox" name="WarpHideStars">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>If this setting is enabled, even if this warp leads to another level, the
+number of existing and collected stars in the level will not be shown.</string>
+             </property>
+             <property name="text">
+              <string>Don't show level completion amount</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0" colspan="2">
+            <widget class="QComboBox" name="transitEffect">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
+             <item>
+              <property name="text">
+               <string comment="Transition effect type">None</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string comment="Transition effect type">Scroll</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string comment="Transition effect type">Fade</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string comment="Transition effect type">Circle fade</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string comment="Transition effect type">Flip horizontal</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string comment="Transition effect type">Flip vertical</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QLabel" name="transitEffectLabel">
+             <property name="text">
+              <string>Transition effect:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QComboBox" name="WarpType">
+             <property name="toolTip">
+              <string>Defines the type of warp:
+0 - Instant, player will be teleported movement speed will be reset to 0.
+1 - Pipe, directional warp entrance and exit.
+2 - Door, player can enter with up key.
+3 - Portal, player will be teleported, but preserving movement speed.</string>
+             </property>
+             <property name="maxVisibleItems">
+              <number>20</number>
+             </property>
+             <property name="minimumContentsLength">
+              <number>10</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>0 - Instant</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>1 - Pipe</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>2 - Door</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>3 - Portal</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Warp type</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="10" column="0" colspan="3">
+         <widget class="QFrame" name="warpBoxEnterEvent">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,80">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="WarpEnterEvent_label">
+             <property name="text">
+              <string>On-Enter event:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="WarpEnterEvent">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>Trigger event when he player enters this warp</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="5" column="0" colspan="3">
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" rowspan="2" colspan="2">
+         <spacer name="verticalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Maximum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>0</width>
+            <height>17</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QGroupBox" name="warpBoxWD">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="title">
+        <string>Level door</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>1</number>
+        </property>
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMinAndMaxSize</enum>
+        </property>
+        <property name="leftMargin">
+         <number>1</number>
+        </property>
+        <property name="topMargin">
+         <number>1</number>
+        </property>
+        <property name="rightMargin">
+         <number>1</number>
+        </property>
+        <property name="bottomMargin">
+         <number>1</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="WarpLevelExit">
+          <property name="toolTip">
+           <string>Entering this warp ends the current level
+If this flag is enabled, you can only place a warp entrance.</string>
+          </property>
+          <property name="text">
+           <string>To other level</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="WarpLevelEntrance">
+          <property name="toolTip">
+           <string>Prevents any in-level warp to exit at this warp.
+Used for creating a warp from another level.
+If this flag is enabled, you can only place a warp exit.</string>
+          </property>
+          <property name="text">
+           <string>From other level</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::MinimumExpanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DirectionSwitchWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">common_features/direction_switch_widget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../_resources/editor.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>WarpEnableCannon</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>WarpCannonSpeed</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>80</x>
+     <y>517</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>137</x>
+     <y>536</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

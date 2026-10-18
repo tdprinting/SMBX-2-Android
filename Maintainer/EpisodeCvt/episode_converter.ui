@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EpisodeConverter</class>
+ <widget class="QDialog" name="EpisodeConverter">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>480</width>
+    <height>282</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Episode conversion tool</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../_resources/maintainer.qrc">
+    <normaloff>:/maintainer.ico</normaloff>:/maintainer.ico</iconset>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="6">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>This wizard will convert / repair level and episode files between different formats
+Supported formats:
+- PGE-X LVLX/WLDX
+- SMBX Version 1...64 LVL/WLD
+- SMBX-38A</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Episode path:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="4">
+    <widget class="QLineEdit" name="episodePath">
+     <property name="placeholderText">
+      <string>Path to an episode directory to process</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="5">
+    <widget class="QPushButton" name="browse">
+     <property name="text">
+      <string>Browse...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Target format:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="targetFormat">
+     <item>
+      <property name="text">
+       <string notr="true">PGE-X</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">SMBX-1...64</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">SMBX-38A</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Version:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QSpinBox" name="targetFormatVer">
+     <property name="maximum">
+      <number>64</number>
+     </property>
+     <property name="value">
+      <number>64</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" colspan="5">
+    <widget class="QCheckBox" name="lookForSubDirs">
+     <property name="text">
+      <string>Look for subdirectories</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="5">
+    <widget class="QCheckBox" name="makeBacup">
+     <property name="text">
+      <string>Make backup (&quot;_backup&quot; sub-folder will be created)</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="3">
+    <widget class="QPushButton" name="closeBox">
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="4" colspan="2">
+    <widget class="QPushButton" name="DoMadJob">
+     <property name="text">
+      <string>Start</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="6">
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>0</number>
+     </property>
+     <property name="textVisible">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../_resources/maintainer.qrc"/>
+ </resources>
+ <connections/>
+</ui>

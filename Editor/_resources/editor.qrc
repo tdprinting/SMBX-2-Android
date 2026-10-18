@@ -1,0 +1,39 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>credits.html</file>
+    </qresource>
+    <qresource prefix="/plugin">
+        <file alias="main_boot.js">plugin/main_boot.js</file>
+    </qresource>
+    <qresource prefix="/crashdialogue">
+        <file alias="128.png">crashdialogue/cat_beaten_128.png</file>
+    </qresource>
+    <qresource prefix="/introdialogue">
+        <file alias="ui_classic.png">introdialogue/ui_classic.png</file>
+        <file alias="ui_modern.png">introdialogue/ui_modern.png</file>
+    </qresource>
+    <qresource prefix="/dialogues">
+        <file alias="question.png">dialogues/question.png</file>
+        <file alias="warn.png">dialogues/warn.png</file>
+    </qresource>
+    <qresource prefix="/config_status">
+        <file alias="bad.png">config_status/conf_bad.png</file>
+        <file alias="good.png">config_status/conf_good.png</file>
+        <file alias="warn.png">config_status/conf_warn.png</file>
+    </qresource>
+    <qresource prefix="/players">
+        <file alias="point1.png">players/player1_point.png</file>
+        <file alias="point2.png">players/player2_point.png</file>
+        <file alias="point.png">players/player_point.png</file>
+    </qresource>
+    <qresource prefix="/cursors">
+        <file alias="flood_fill.png">cursors/flood_fill.png</file>
+        <file alias="pasta.png">cursors/pasta.png</file>
+        <file alias="rubber.png">cursors/rubber.png</file>
+    </qresource>
+    <qresource prefix="/images">
+        <file alias="set_point.png">images/set_point.png</file>
+        <file alias="splash_editor.png">images/splash_editor.png</file>
+    </qresource>
+</RCC>

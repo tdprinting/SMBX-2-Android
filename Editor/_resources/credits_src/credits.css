@@ -1,0 +1,95 @@
+a.email
+{
+    text-decoration: underline;
+    color:#0000ff;
+}
+
+td
+{
+    border: none;
+}
+
+table
+{
+    border: none;
+}
+
+.blackLine
+{
+    height: 1px;
+    max-height: 1px;
+}
+
+.title1
+{
+    text-align: center;
+    font-size: 16pt;
+    font-weight:600;
+    text-decoration: underline;
+    padding-top: 0.2em;
+    padding-bottom: 0.5em;
+    text-indent: 0;
+}
+
+.floatTitle
+{
+    display: block;
+}
+
+.title2
+{
+    color: lightsteelblue;
+    font-size: large;
+    width: 100%;
+    font-style: italic;
+    padding-top: 0.1em;
+    vertical-align: top;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.people
+{
+    padding-top: 1.2em;
+    padding-bottom: 1.5em;
+    text-align: center;
+}
+
+span.who
+{
+    font-style:italic;
+    font-weight: bold;
+}
+
+div.wholist
+{
+    display: block;
+    margin-left: 20px;
+}
+
+img.leftPos
+{
+    border-width: 0;
+}
+
+img.rightPos
+{
+    border-width: 0;
+}
+
+img
+{
+    display: inline-block;
+}
+
+.hr-dashed
+{
+    text-align: center;
+    margin: 20px auto;
+    width: 70%;
+    padding: 0;
+    height: 0.1em;
+    border: none;
+    border-top: 2px dashed #ddd;
+}
