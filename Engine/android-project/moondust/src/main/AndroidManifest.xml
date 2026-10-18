@@ -43,6 +43,9 @@
     <!-- In-app mod browser (ModBrowserActivity) -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- In-app updater (Updater.java): install the downloaded APK over the installed app via PackageInstaller -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
     <!-- Allow access to the vibrator -->
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Allow access to Bluetooth devices -->
@@ -108,6 +111,10 @@
             android:screenOrientation="sensorLandscape"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|uiMode|density"
             android:windowSoftInputMode="adjustPan"
+            android:exported="false"
+            />
+        <!-- Receives PackageInstaller results for the in-app updater -->
+        <receiver android:name="UpdateInstallReceiver"
             android:exported="false"
             />
     </application>

@@ -66,6 +66,7 @@ public class ModBrowserActivity extends Activity
     private ProgressBar m_pageProgress;
     private Button m_btnBack, m_btnFwd, m_btnReload;
     private final Handler m_ui = new Handler(Looper.getMainLooper());
+    private Updater m_updater;
 
     // download state
     private volatile boolean m_cancelDl = false;
@@ -157,6 +158,28 @@ public class ModBrowserActivity extends Activity
         bar.addView(go);
         bar.addView(close);
         root.addView(bar, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        // Second toolbar row (the first one is full): app updater. D-pad down from the first row reaches it.
+        m_updater = new Updater(this);
+        LinearLayout bar2 = new LinearLayout(this);
+        bar2.setOrientation(LinearLayout.HORIZONTAL);
+        bar2.setGravity(Gravity.CENTER_VERTICAL);
+        bar2.setBackground(getResources().getDrawable(R.drawable.n64_toolbar_bg, getTheme()));
+        bar2.setPadding(dp(8), 0, dp(8), dp(10));
+        Button update = makeButton("UPDATE", N64Ui.BLUE, new View.OnClickListener()
+        {
+            public void onClick(View v) { m_updater.checkManual(); }
+        });
+        LinearLayout.LayoutParams upLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        upLp.setMargins(dp(3), 0, dp(3), 0);
+        bar2.addView(update, upLp);
+        TextView ver = new TextView(this);
+        ver.setText("Check for a newer version of the game app");
+        ver.setTextSize(16);
+        ver.setTextColor(getResources().getColor(R.color.n64_ink, getTheme()));
+        ver.setPadding(dp(12), 0, 0, dp(5));
+        bar2.addView(ver);
+        root.addView(bar2, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
         m_pageProgress = N64Ui.makeProgress(this, 8);
         m_pageProgress.setMax(100);
@@ -369,12 +392,14 @@ public class ModBrowserActivity extends Activity
     {
         super.onResume();
         m_web.onResume();
+        m_updater.onResume();
     }
 
     @Override
     protected void onDestroy()
     {
         m_cancelDl = true;
+        m_updater.detach();
         if(m_dlDialog != null && m_dlDialog.isShowing())
             m_dlDialog.dismiss();
         m_web.stopLoading();

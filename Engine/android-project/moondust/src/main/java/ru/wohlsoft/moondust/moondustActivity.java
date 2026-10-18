@@ -70,6 +70,8 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
     private Button m_modsButton = null;
     //! Select+Start long-press tracking (opens the mod browser)
     private boolean m_selectDown = false, m_startDown = false;
+    //! In-app updater: one silent check per launch, runs in the background
+    private Updater m_updater = null;
     private final Handler m_comboHandler = new Handler(Looper.getMainLooper());
     private final Runnable m_comboRun = new Runnable()
     {
@@ -153,11 +155,18 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
         if(im != null)
             im.registerInputDeviceListener(this, null);
         updateTouchOverlay();
+
+        // Storage-permission flow is done at this point (we returned early above otherwise). The check runs on
+        // a worker thread and only shows a dialog when a newer build exists; it never delays the game start.
+        m_updater = new Updater(this);
+        m_updater.checkAutomatic();
     }
 
     @Override
     protected void onDestroy()
     {
+        if(m_updater != null)
+            m_updater.detach();
         InputManager im = (InputManager)getSystemService(Context.INPUT_SERVICE);
         if(im != null)
             im.unregisterInputDeviceListener(this);
@@ -169,6 +178,8 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
     {
         super.onResume();
         updateTouchOverlay();
+        if(m_updater != null)
+            m_updater.onResume();
     }
 
     @Override
