@@ -20,6 +20,7 @@
 #include <DirManager/dirman.h>
 #include <Utils/files.h>
 #include <fmt/fmt_qformat.h>
+#include <common_features/app_path.h>
 
 #include <Logger/logger.h>
 #include <common_features/tr.h>
@@ -550,6 +551,8 @@ void TitleScene::setMenu(TitleScene::CurrentMenu targetMenu)
 #endif
         if(!ConfigManager::dirs.worldsUser.empty())
             m_filefind_folders.push_back(ConfigManager::dirs.worldsUser);
+        for(const std::string &d : AppPathManager::modEpisodeDirs())
+            m_filefind_folders.push_back(d);
 #ifndef PGE_NO_THREADING
         m_filefind_thread = SDL_CreateThread(findEpisodes, "EpisodeFinderThread", nullptr);
 #else
@@ -585,6 +588,8 @@ void TitleScene::setMenu(TitleScene::CurrentMenu targetMenu)
 #endif
         if(!ConfigManager::dirs.worldsUser.empty())
             m_filefind_folders.push_back(ConfigManager::dirs.worldsUser);
+        for(const std::string &d : AppPathManager::modEpisodeDirs())
+            m_filefind_folders.push_back(d);
 #ifndef PGE_NO_THREADING
         m_filefind_thread = SDL_CreateThread(findLevels, "LevelFinderThread", nullptr);
 #else
@@ -694,6 +699,25 @@ int TitleScene::findLevels(void *)
 
         std::vector<std::string> files;
         levelDir.getListOfFiles(files, {".lvl", ".lvlx"});
+
+        // Level-only mods are installed as <dir>/<name>/<level>.lvl(x): look one folder deep, but skip
+        // folders with a world map (those are full episodes, not loose levels).
+        {
+            std::vector<std::string> subfolders;
+            levelDir.getListOfFolders(subfolders);
+            for(const std::string &sub : subfolders)
+            {
+                DirMan subDir(dir + sub);
+                std::vector<std::string> worlds;
+                subDir.getListOfFiles(worlds, {".wld", ".wldx"});
+                if(!worlds.empty())
+                    continue;
+                std::vector<std::string> subLevels;
+                subDir.getListOfFiles(subLevels, {".lvl", ".lvlx"});
+                for(const std::string &l : subLevels)
+                    files.push_back(sub + "/" + l);
+            }
+        }
 
         if(!files.empty())
         {

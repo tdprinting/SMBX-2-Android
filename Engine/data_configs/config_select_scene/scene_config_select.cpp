@@ -103,6 +103,22 @@ ConfigSelectScene::ConfigSelectScene():
         }
     }
 
+    // Config packs bundled inside user mods (userdir/mods/<mod>/configs/)
+    for(const std::string &modCfgDir : AppPathManager::modConfigDirs())
+    {
+        std::vector<std::string> modPacks; // getListOfFolders() clears its output, local vector keeps it explicit
+        DirMan modDir(modCfgDir);
+        modDir.getListOfFolders(modPacks);
+
+        for(std::string &c : modPacks)
+        {
+            configPackPair path;
+            path.first  = c;
+            path.second = modCfgDir + c + "/";
+            config_paths.push_back(path);
+        }
+    }
+
     for(configPackPair &confD : config_paths)
     {
         std::string c = confD.first;

@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.widget.Toast;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -114,12 +116,18 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
+        // The engine thread starts only after the window gets focus and onResume() runs, which never
+        // happens for an activity finished inside onCreate(). So ask for all-files access first and
+        // bail out before the engine can cache wrong (non-writable) storage paths.
+        final boolean needFsGrant = !hasManageAppFS();
         super.onCreate(savedInstanceState);
+        if(needFsGrant)
+        {
+            finish();
+            return;
+        }
 
         setupWindow();
-
-        if(!hasManageAppFS())
-            return;
 
         LinearLayout ll = new LinearLayout(this);
         ll.setBackground(getResources().getDrawable(R.mipmap.buttons));
@@ -266,6 +274,11 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
         applyImmersive();
     }
 
+    /**
+     * Returns true when the engine may start now. On API 30+ without all-files access, the Settings page is
+     * opened once (the user then relaunches the game after granting). If the user already was asked and
+     * declined, returns true so the game runs using its app-specific folder.
+     */
     public boolean hasManageAppFS()
     {
         if(Build.VERSION.SDK_INT >= 30)
@@ -273,14 +286,24 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
             if(Environment.isExternalStorageManager())
                 return true;
 
-            Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-            String pName = getPackageName();
-            Uri uri = Uri.fromParts("package", pName, null);
-            intent.setData(uri);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+            SharedPreferences sp = getSharedPreferences("moondust_prefs", Context.MODE_PRIVATE);
+            if(sp.getBoolean("fs_access_prompted", false))
+                return true; // declined earlier: fall back to the app-specific folder
 
-            return false;
+            sp.edit().putBoolean("fs_access_prompted", true).apply();
+            try
+            {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                intent.setData(Uri.fromParts("package", getPackageName(), null));
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                Toast.makeText(this, "Allow access to all files, then start the game again", Toast.LENGTH_LONG).show();
+                return false;
+            }
+            catch(Exception e)
+            {
+                return true; // Settings page unavailable: run with the app-specific folder
+            }
         }
 
         return true;

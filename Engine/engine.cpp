@@ -268,10 +268,12 @@ bool PGEEngineApp::initSDL()
     SDL_ClearError();
 
 #if defined(__ANDROID__)
-    if(!SDL_AndroidRequestPermission("android.permission.WRITE_EXTERNAL_STORAGE"))
+    // WRITE_EXTERNAL_STORAGE is meaningless (never granted) on Android 11+; there the app relies on
+    // all-files access or falls back to its app-specific folder. Never abort because of this.
+    if(SDL_GetAndroidSDKVersion() < 30)
     {
-        pLogFatal("Permission denied");
-        return false;
+        if(!SDL_AndroidRequestPermission("android.permission.WRITE_EXTERNAL_STORAGE"))
+            pLogWarning("Storage permission was denied, falling back to the app-specific folder");
     }
 #endif
 
