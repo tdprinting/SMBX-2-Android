@@ -1,76 +1,75 @@
 # Mods on Android (Moondust / SMBX2 engine)
 
-This page describes the user-installable content folder on Android, written for the AYN Odin 2 Portal (Android 13, arm64), and what is and is not wired up yet.
+This page describes the user-installable content folder on Android, written for the AYN Odin 2 Portal (Android 13, arm64), and what is and is not wired up. The status below was checked against the source, and it has not been run on a device.
 
 ## Status
 
 | Item | State |
 | --- | --- |
-| Shared folder `/sdcard/Moondust/` created on first run, with fallback | Implemented (`Engine/common_features/app_path.cpp`) |
-| Startup log listing discovered episodes, config packs and mods | Implemented, `== Mods:` lines in logcat |
-| Config packs in `configs/` shown on the config-select screen | Works through the engine's existing scan, once the shared folder is writable |
-| Episodes in `episodes/` and `mods/<name>/episodes/` shown in the Episode menu | Discovered and logged, **not yet listed in the menu** (needs a small patch to `Engine/scenes/title/ttl_main_menu.cpp`) |
-| Config packs in `mods/<name>/configs/` shown on config-select | Discovered, **not yet listed** (needs a patch to `Engine/data_configs/config_select_scene/scene_config_select.cpp`) |
-| Mod `.zip` archives | **Not supported**. Extract them into a folder. They are logged as skipped. |
-| Lua scripts from mods | **Not loaded.** Lua in `script/` is only counted in the log. See the Lua risk section. |
+| Shared folder `/sdcard/Moondust/` created on first run, with fallbacks | Implemented (`Engine/common_features/app_path.cpp`) |
+| Startup log summary of episodes, config packs and mods | Implemented, `== Mods:` lines on stdout/stderr (see `ANDROID.md`, "Logs") |
+| Config packs in `configs/` shown on the config-select screen | Implemented |
+| Config packs in `mods/<name>/configs/` shown on the config-select screen | Implemented (`AppPathManager::modConfigDirs()`) |
+| Episodes in `episodes/` and `mods/<name>/episodes/` shown in the Episode menu | Implemented (`AppPathManager::modEpisodeDirs()`, used by `ttl_main_menu.cpp`) |
+| Standalone levels in those folders shown in the level menu | Implemented (one folder deep, skipping folders that contain a world map) |
+| Mod `.zip` archives placed in `mods/` | **Not supported.** They are logged as skipped. Extract them into a folder. The in-app mod browser extracts zips into `episodes/` and `configs/` itself. |
+| Lua scripts in `mods/<name>/script/` | **Not loaded.** They are only counted in the log. |
+| Lua in config packs | Runs in the restricted Android sandbox (see "Lua security") |
+| Tested on hardware | No |
 
 ## Folder layout
 
 ```
 /sdcard/Moondust/                      user folder (shown as "Moondust" in the file manager)
-  configs/<PackName>/main.ini          config packs (scanned by the engine today)
-  episodes/<EpisodeName>/*.wld         shared episodes (pending menu wiring)
-  mods/<ModName>/episodes/<Episode>/   episodes shipped by a mod (pending menu wiring)
-  mods/<ModName>/configs/<PackName>/   config packs shipped by a mod (pending menu wiring)
-  mods/<ModName>/script/*.lua          reserved, not loaded
-  settings/                            created by the engine (pge_engine.ini)
-  gamesaves/                           created by the engine
+  configs/<PackName>/main.ini          config packs
+  episodes/<EpisodeName>/*.wld         shared episodes
+  mods/<ModName>/episodes/<Episode>/   episodes shipped by a mod
+  mods/<ModName>/configs/<PackName>/   config packs shipped by a mod
+  mods/<ModName>/script/*.lua          not loaded
+  settings/                            created by the engine (pge_engine.ini, gamesaves/)
+  screenshots/                         screenshots folder used by the engine
   .nomedia                             created by the engine, keeps Android media scanners out
 ```
 
-Folder names are matched case-insensitively for `episodes`, `configs`, `mods` and `script`. Files inside an episode folder (custom graphics, `folders.ini`, etc.) are also matched case-insensitively by the engine's existing custom-data lookup. Files that come from the config pack itself are not, so their names must match the config pack's case exactly.
+The engine creates `episodes/`, `configs/` and `mods/` on first run.
 
-An episode is a folder containing a `.wld` or `.wldx` file. Levels (`.lvl`/`.lvlx`) sit in the same folder as the episode's world map.
+Folder names `episodes`, `configs`, `mods` and `script` are matched case-insensitively. Files inside an episode folder (custom graphics, `folders.ini`, and so on) are also matched case-insensitively by the engine's custom-data lookup. Files that come from the config pack itself are not, so their names must match the config pack's case exactly.
+
+An episode is a folder containing a `.wld` or `.wldx` file. Levels (`.lvl` / `.lvlx`) sit in the same folder as the episode's world map. A folder with `.lvl` / `.lvlx` files and no world map is listed as a standalone level.
 
 ## Where the folder lives
 
 1. **Preferred:** `/sdcard/Moondust/`. This needs the "All files access" permission (Android 11+ scoped storage blocks creating folders at the root of shared storage otherwise). Grant it in Settings > Apps > Special app access > All files access > Moondust.
-2. **Fallback:** if `/sdcard/Moondust/` cannot be created, the app uses its app-specific external folder, `/storage/emulated/0/Android/data/ru.wohlsoft.moondust/files/` (`.debug` suffix for debug builds). This works without permission, but Android 11+ does not allow USB/MTP copies into `Android/data`. Use this path only for on-device testing.
+2. **Fallback:** if `/sdcard/Moondust/` is not writable, the app uses its app-specific external folder under `Android/data/` (the exact path is printed at startup; the `.debug` package has its own folder). This works without the permission, but Android 11+ does not allow USB or MTP copies into `Android/data`, so use this path only for on-device testing.
 3. **Last resort:** if neither is writable, the app uses its internal files folder. Mods cannot be installed from outside in that case.
 
-The chosen folder is printed to logcat at startup.
+The chosen folder is printed at startup.
 
 ## Installing a mod on the Odin 2 Portal
 
-1. Grant Moondust "All files access" (see above). Launch the app once so it creates the folders.
+1. Grant Moondust "All files access" (see `ANDROID.md`). Launch the app once so it creates the folders.
 2. Connect the Odin 2 Portal to a PC over USB and set USB mode to "File transfer".
-3. Open `Moondust/mods/`. Create a folder for the mod, for example `mods/MyMod/`, and copy the mod's `episodes/` and/or `configs/` folders into it.
-4. Disconnect and fully restart Moondust. Mods are scanned once at startup.
-5. Check the result in logcat (filter `== Mods`). You should see one line per mod with the number of episodes, config packs and Lua files found.
+3. Open `Moondust/mods/`. Create a folder for the mod, for example `mods/MyMod/`, and copy the mod's `episodes/` and/or `configs/` folders into it. Mods shipped as a zip must be extracted first.
+4. Disconnect. You do not need to restart the game for the episode or config lists to update: the Episode menu and the config-select screen scan their folders when they open. The startup summary in the log is printed only at startup.
+5. To check what was found, look at the `== Mods:` lines in the log, for example `adb logcat | grep "Mods:"`. You should see one line per mod with the number of episodes, config packs and Lua files found.
 
 You can also use an on-device file manager that has All-files access. Copy the same folders there.
 
 ## Limitations
 
-- **Zip archives are not supported.** Extract them into a folder first.
-- **Lua from mods is not executed.** The count in the log is informational only.
-- **Episode and config discovery in `episodes/` and `mods/*` is pending menu wiring.** Until that patch is applied, only `configs/` in the user folder is actually visible in the app.
+- **Zip archives in `mods/` are not supported.** Extract them into a folder first. (The in-app mod browser handles zips itself, see `MOD_BROWSER.md`.)
+- **Lua from `mods/*/script/` is not executed.** The count in the log is informational only.
 - **Mod assets are only used through the engine's existing per-episode mechanisms.** The engine loads custom assets from the episode folder and the `folders.ini` list. Mod-level asset overrides are not implemented.
-- **The old settings folder is not migrated.** Previous builds stored settings in `/sdcard/PGE Project/`. The new folder is `/sdcard/Moondust/`. Copy `settings/` over by hand if needed.
-- **The `episodes/` folder name is new.** The engine's default worlds folder is `<config_id>_worlds`, derived from the config pack. Whatever `worlds` key a config pack sets in its `main.ini` still controls where that pack looks for episodes.
+- **Earlier builds used `/sdcard/PGE Project/`.** That folder is no longer the user folder. Copy `settings/` over by hand if you want to keep old settings.
 - **Not run on a device yet.** The code was checked by reading and by host syntax checks only.
 
-## Lua risk
+## Lua security
 
-**Important:** config packs already run Lua today. The `main_*.lua` scripts named in a config pack's `engine.ini`, and the level/world scripts it references, are executed by the engine. So a config pack in `configs/`, including one shipped inside a mod or installed by the mod browser, runs with the full privileges described below. Only install config packs from sources you trust.
+Config packs run Lua, including packs shipped inside a mod or installed by the mod browser. On Android that Lua runs in a restricted state (`Engine/script/lua_engine.cpp`, change in progress):
 
-The Lua state in `Engine/script/lua_engine.cpp` (around lines 146-193) is not a sandbox. Today it opens:
+- `io.open`, `io.lines`, `io.input` and `io.output` are checked against a file access policy. Reads are allowed only inside the read roots, and writes only inside the write roots.
+- `io.popen` and `io.tmpfile` are disabled. `os.execute`, `os.exit`, `os.remove`, `os.rename` and `os.tmpname` are disabled, and `os.getenv` returns nil.
+- `package.loadlib` is removed. `loadfile` and `dofile` go through the same path check. Binary chunks are refused.
+- The `debug`, `ffi` and `jit` libraries are not loaded on Android.
 
-- `io` in full (`io.open`, `io.popen`, `io.lines`, `io.output`). A script can read and write any file the app can access, including `/sdcard`, and can run shell commands through `io.popen`.
-- `os`, with only `execute`, `exit`, `remove`, `rename`, `setlocal` and `tmpname` removed. `os.getenv` remains.
-- `package` in full, including `package.loadlib`, which loads native code from a path.
-- `loadfile`/`dofile` from the base library. These read arbitrary files.
-- `debug` in full.
-- `ffi` and `jit` when built with LuaJIT (`PGE_USE_LUAJIT`). `ffi.C` and `ffi.load` run arbitrary native code.
-
-Before Lua from mods is loaded, remove or restrict these in `lua_engine.cpp`. At minimum: drop `io`, `ffi`, `jit` and `debug`, remove `loadfile`, `dofile` and `package.loadlib`, and keep only a safe `os` subset (`time`, `clock`, `date`). Mod scripts should also be loaded only from the mod's own folder.
+The exact file policy is in `LuaSandbox_PathPolicy()` and `LuaSandbox_Apply()` in `Engine/script/lua_engine.cpp`. That file is being changed, so check the code for the current rules. Only install config packs and mods from sources you trust.
