@@ -1,6 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#2B2B30</color>
+    <color name="colorPrimaryDark">#121214</color>
+    <color name="colorAccent">#FFD500</color>
+
+    <!-- N64-inspired palette (original styling; resource names are internal) -->
+    <color name="n64_charcoal">#2B2B30</color>
+    <color name="n64_charcoal_light">#55555D</color>
+    <color name="n64_charcoal_mid">#3A3A41</color>
+    <color name="n64_charcoal_deep">#121214</color>
+    <color name="n64_gray_light">#D8D8DC</color>
+    <color name="n64_gray">#B8B8BC</color>
+    <color name="n64_gray_dark">#9A9A9F</color>
+    <color name="n64_ink">#1B1B1F</color>
+    <color name="n64_text_light">#F4F4F6</color>
+    <color name="n64_shadow">#0B0B0D</color>
+    <color name="n64_field_bg">#1A1A1E</color>
+    <color name="n64_disabled">#55555B</color>
+    <color name="n64_disabled_edge">#6A6A70</color>
+    <color name="n64_disabled_text">#9A9A9F</color>
+
+    <!-- Logo accents. Meaning: blue = A / confirm, green = B / back, red = destructive / cancel, yellow = focus -->
+    <color name="n64_red">#E4002B</color>
+    <color name="n64_red_light">#FF5A75</color>
+    <color name="n64_red_dark">#8A0019</color>
+    <color name="n64_green">#00A651</color>
+    <color name="n64_green_light">#47D98A</color>
+    <color name="n64_green_dark">#006631</color>
+    <color name="n64_blue">#0072BC</color>
+    <color name="n64_blue_light">#52AAEA</color>
+    <color name="n64_blue_dark">#00406E</color>
+    <color name="n64_yellow">#FFD500</color>
 </resources>

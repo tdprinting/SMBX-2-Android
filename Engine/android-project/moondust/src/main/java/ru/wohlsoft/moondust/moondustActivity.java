@@ -135,17 +135,19 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
                 LinearLayout.LayoutParams.MATCH_PARENT));
         m_touchOverlay = ll;
 
-        m_modsButton = new Button(this);
-        m_modsButton.setText("Mods");
-        m_modsButton.setAllCaps(false);
-        m_modsButton.setAlpha(0.7f);
-        m_modsButton.setOnClickListener(new View.OnClickListener()
+        // Same chunky style as the mod browser (blue = action). Top-right corner is free in the touch layout
+        // (buttons.png has only the keyboard icon at the top-left), so it does not overlap the controls.
+        m_modsButton = N64Ui.makeButton(this, "Mods", N64Ui.BLUE, new View.OnClickListener()
         {
             @Override
             public void onClick(View v) { openModBrowser(); }
         });
-        addContentView(m_modsButton, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.END));
+        m_modsButton.setAlpha(0.85f);
+        FrameLayout.LayoutParams modsLp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.END);
+        int mm = (int)(8 * getResources().getDisplayMetrics().density + 0.5f);
+        modsLp.setMargins(mm, mm, mm, mm);
+        addContentView(m_modsButton, modsLp);
 
         InputManager im = (InputManager)getSystemService(Context.INPUT_SERVICE);
         if(im != null)

@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -79,17 +78,9 @@ public class ModBrowserActivity extends Activity
         return (int)(v * getResources().getDisplayMetrics().density + 0.5f);
     }
 
-    private Button makeButton(String text, View.OnClickListener l)
+    private Button makeButton(String text, int role, View.OnClickListener l)
     {
-        Button b = new Button(this);
-        b.setText(text);
-        b.setAllCaps(false);
-        b.setFocusable(true);
-        b.setMinWidth(dp(48));
-        b.setMinimumWidth(dp(48));
-        b.setPadding(dp(6), 0, dp(6), 0);
-        b.setOnClickListener(l);
-        return b;
+        return N64Ui.makeButton(this, text, role, l);
     }
 
     @Override
@@ -103,28 +94,31 @@ public class ModBrowserActivity extends Activity
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(Color.BLACK);
+        root.setBackgroundColor(getResources().getColor(R.color.n64_charcoal, getTheme()));
+
+        // 4-colour accent strip along the very top, then the gray controller-body toolbar
+        root.addView(N64Ui.accentStrip(this, 6));
 
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        bar.setBackgroundColor(0xFF222222);
+        bar.setBackground(getResources().getDrawable(R.drawable.n64_toolbar_bg, getTheme()));
+        bar.setPadding(dp(8), dp(6), dp(8), dp(10));
 
-        m_btnBack = makeButton("<", new View.OnClickListener() { public void onClick(View v) { goBackOrFinish(false); } });
-        m_btnFwd = makeButton(">", new View.OnClickListener() { public void onClick(View v) { if(m_web.canGoForward()) m_web.goForward(); } });
-        m_btnReload = makeButton("Reload", new View.OnClickListener()
+        m_btnBack = makeButton("<", N64Ui.GREEN, new View.OnClickListener() { public void onClick(View v) { goBackOrFinish(false); } });
+        m_btnFwd = makeButton(">", N64Ui.DARK, new View.OnClickListener() { public void onClick(View v) { if(m_web.canGoForward()) m_web.goForward(); } });
+        m_btnReload = makeButton("Reload", N64Ui.DARK, new View.OnClickListener()
         {
             public void onClick(View v) { if(m_loading) m_web.stopLoading(); else m_web.reload(); }
         });
-        Button home = makeButton("Home", new View.OnClickListener() { public void onClick(View v) { m_web.loadUrl(HOME_URL); } });
-        Button go = makeButton("Go", new View.OnClickListener() { public void onClick(View v) { submitUrl(); } });
-        Button close = makeButton("Close", new View.OnClickListener() { public void onClick(View v) { finish(); } });
+        Button home = makeButton("Home", N64Ui.DARK, new View.OnClickListener() { public void onClick(View v) { m_web.loadUrl(HOME_URL); } });
+        Button go = makeButton("Go", N64Ui.BLUE, new View.OnClickListener() { public void onClick(View v) { submitUrl(); } });
+        Button close = makeButton("Close", N64Ui.RED, new View.OnClickListener() { public void onClick(View v) { finish(); } });
 
         m_url = new EditText(this);
         m_url.setSingleLine(true);
         m_url.setSelectAllOnFocus(true);
-        m_url.setTextColor(Color.WHITE);
-        m_url.setHintTextColor(Color.GRAY);
+        N64Ui.styleField(m_url);
         m_url.setHint("Search or enter address");
         m_url.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_URI);
         m_url.setImeOptions(EditorInfo.IME_ACTION_GO);
@@ -141,19 +135,33 @@ public class ModBrowserActivity extends Activity
             }
         });
 
+        TextView title = N64Ui.makeTitle(this, "MODS");
+        title.setTextColor(getResources().getColor(R.color.n64_ink, getTheme()));
+        title.setShadowLayer(0f, 0f, 0f, 0);
+        title.setTextSize(24);
+        title.setPadding(dp(8), 0, dp(14), 0);
+        bar.addView(title);
         bar.addView(m_btnBack);
         bar.addView(m_btnFwd);
         bar.addView(m_btnReload);
         bar.addView(home);
-        bar.addView(m_url, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        for(Button bt : new Button[] { m_btnBack, m_btnFwd, m_btnReload, home, go, close })
+        {
+            LinearLayout.LayoutParams gap = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            gap.setMargins(dp(3), 0, dp(3), 0);
+            bt.setLayoutParams(gap);
+        }
+        LinearLayout.LayoutParams urlLp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        urlLp.setMargins(dp(5), 0, dp(5), dp(5)); // bottom margin lines the field up with the buttons' face
+        bar.addView(m_url, urlLp);
         bar.addView(go);
         bar.addView(close);
         root.addView(bar, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
-        m_pageProgress = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        m_pageProgress = N64Ui.makeProgress(this, 8);
         m_pageProgress.setMax(100);
         m_pageProgress.setVisibility(View.GONE);
-        root.addView(m_pageProgress, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(4)));
+        root.addView(m_pageProgress, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(8)));
 
         m_web = new WebView(this);
         m_web.setFocusable(true);
@@ -437,15 +445,13 @@ public class ModBrowserActivity extends Activity
         if(!allowedExt(guess.toLowerCase(Locale.ROOT)))
         {
             // name may only be known after redirects: still let the user try, verified again after download
-            new AlertDialog.Builder(this)
-                .setTitle("Download this file?")
+            N64Ui.show(N64Ui.dialog(this, "Download this file?", R.color.n64_yellow)
                 .setMessage("\"" + guess + "\" does not look like a mod (.zip, .lvl, .lvlx, .wld, .wldx). Download anyway?")
                 .setPositiveButton("Download", new DialogInterface.OnClickListener()
                 {
                     public void onClick(DialogInterface d, int w) { runDownload(url, ua, cd, mime, len, guess); }
                 })
-                .setNegativeButton("Cancel", null)
-                .show();
+                .setNegativeButton("Cancel", null));
             return;
         }
         runDownload(url, ua, cd, mime, len, guess);
@@ -457,25 +463,25 @@ public class ModBrowserActivity extends Activity
 
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
-        box.setPadding(dp(20), dp(12), dp(20), dp(4));
+        box.setPadding(dp(24), dp(16), dp(24), dp(8));
         m_dlText = new TextView(this);
         m_dlText.setText("Connecting...");
-        m_dlBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        m_dlText.setTextSize(20);
+        m_dlText.setTextColor(getResources().getColor(R.color.n64_ink, getTheme()));
+        m_dlText.setPadding(0, 0, 0, dp(10));
+        m_dlBar = N64Ui.makeProgress(this, 20);
         m_dlBar.setMax(1000);
         m_dlBar.setIndeterminate(len <= 0);
         box.addView(m_dlText);
-        box.addView(m_dlBar);
+        box.addView(m_dlBar, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(20)));
 
-        m_dlDialog = new AlertDialog.Builder(this)
-            .setTitle("Downloading " + guess)
+        m_dlDialog = N64Ui.show(N64Ui.dialog(this, "Downloading " + guess, R.color.n64_green)
             .setView(box)
             .setCancelable(false)
             .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
             {
                 public void onClick(DialogInterface d, int w) { m_cancelDl = true; }
-            })
-            .create();
-        m_dlDialog.show();
+            }));
 
         final String cookie = CookieManager.getInstance().getCookie(url);
 

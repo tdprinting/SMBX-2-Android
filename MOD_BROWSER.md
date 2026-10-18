@@ -47,3 +47,12 @@ Installs go to `/sdcard/Moondust/episodes/` and `/sdcard/Moondust/configs/`, whi
 - `.rar` and `.7z` archives must be extracted first.
 - Downloads are limited to 512 MB. Archives are limited to 20000 entries, 1 GB per file and 2 GB total.
 - The browser follows the sites you open. It is not a curated mod catalogue.
+
+## UI theme
+
+The native Android screens (mod browser, install dialogs and the touch-overlay "Mods" button) use a console-inspired look: charcoal background, light-gray panels, chunky beveled buttons and a red/green/blue/yellow accent strip. It is original styling with no logos or fonts. The engine's own SDL menus are not affected.
+
+- **Colours:** `n64_*` entries in `res/values/colors.xml`. Blue = confirm/action (Go, Install, Mods), green = back, red = cancel/close/destructive (Replace), yellow = focus.
+- **Focus:** every button and the address field draws a thick yellow ring when focused, so D-pad navigation is always visible. Pressed buttons sink.
+- **Code:** `N64Ui.java` holds the shared helpers; drawables are `res/drawable/n64_*.xml`; themes are `N64.Activity` and `N64Dialog` in `res/values/styles.xml`.
+- **Not themed:** the storage-permission dialogs in `moondustActivity`.

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dialog window: gray panel, dark rounded border -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="16dp"/>
+    <solid android:color="@color/n64_gray"/>
+    <stroke android:width="3dp" android:color="@color/n64_charcoal_deep"/>
+</shape>

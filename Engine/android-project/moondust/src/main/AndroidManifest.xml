@@ -104,6 +104,7 @@
         <!-- In-app browser to download and install mods -->
         <activity android:name="ModBrowserActivity"
             android:label="Mod Browser"
+            android:theme="@style/N64.Activity"
             android:screenOrientation="sensorLandscape"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|uiMode|density"
             android:windowSoftInputMode="adjustPan"

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Chunky beveled button: gradient body + hard shadow edge. Focus = thick yellow ring, pressed = sinks. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+    <layer-list>
+    <item android:left="0dp" android:top="3dp" android:right="0dp" android:bottom="0dp">
+        <shape android:shape="rectangle"><corners android:radius="14dp"/><solid android:color="@color/n64_shadow"/></shape>
+    </item>
+    <item android:left="0dp" android:top="4dp" android:right="0dp" android:bottom="0dp">
+        <shape android:shape="rectangle"><corners android:radius="12dp"/><gradient android:angle="270" android:startColor="@color/n64_green_dark" android:centerColor="@color/n64_green" android:endColor="@color/n64_green" android:centerY="0.5"/><stroke android:width="2dp" android:color="@color/n64_green_dark"/></shape>
+    </item>
+    </layer-list>
+    </item>
+    <item android:state_focused="true">
+    <layer-list>
+    <item android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="0dp">
+        <shape android:shape="rectangle"><corners android:radius="17dp"/><solid android:color="@color/n64_yellow"/></shape>
+    </item>
+    <item android:left="3dp" android:top="3dp" android:right="3dp" android:bottom="3dp">
+        <shape android:shape="rectangle"><corners android:radius="14dp"/><solid android:color="@color/n64_shadow"/></shape>
+    </item>
+    <item android:left="3dp" android:top="3dp" android:right="3dp" android:bottom="8dp">
+        <shape android:shape="rectangle"><corners android:radius="12dp"/><gradient android:angle="270" android:startColor="@color/n64_green_light" android:centerColor="@color/n64_green" android:endColor="@color/n64_green_dark" android:centerY="0.5"/><stroke android:width="2dp" android:color="@color/n64_green_light"/></shape>
+    </item>
+    </layer-list>
+    </item>
+    <item android:state_enabled="false">
+    <layer-list>
+    <item android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="0dp">
+        <shape android:shape="rectangle"><corners android:radius="14dp"/><solid android:color="@color/n64_shadow"/></shape>
+    </item>
+    <item android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="5dp">
+        <shape android:shape="rectangle"><corners android:radius="12dp"/><solid android:color="@color/n64_disabled"/><stroke android:width="2dp" android:color="@color/n64_disabled_edge"/></shape>
+    </item>
+    </layer-list>
+    </item>
+    <item>
+    <layer-list>
+    <item android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="0dp">
+        <shape android:shape="rectangle"><corners android:radius="14dp"/><solid android:color="@color/n64_shadow"/></shape>
+    </item>
+    <item android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="5dp">
+        <shape android:shape="rectangle"><corners android:radius="12dp"/><gradient android:angle="270" android:startColor="@color/n64_green_light" android:centerColor="@color/n64_green" android:endColor="@color/n64_green_dark" android:centerY="0.5"/><stroke android:width="2dp" android:color="@color/n64_green_light"/></shape>
+    </item>
+    </layer-list>
+    </item>
+</selector>

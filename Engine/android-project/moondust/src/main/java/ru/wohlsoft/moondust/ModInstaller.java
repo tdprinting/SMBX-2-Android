@@ -123,8 +123,7 @@ public class ModInstaller
             next.run();
             return;
         }
-        new AlertDialog.Builder(m_act)
-            .setTitle("Mods can run scripts")
+        N64Ui.show(N64Ui.dialog(m_act, "Mods can run scripts", R.color.n64_yellow)
             .setMessage("Mods may contain Lua scripts that run inside the game engine with the game's permissions. " +
                         "Only install mods from sources you trust.\n\n" +
                         "Moondust never runs native code from downloads; executable files (.so, .exe, .apk, ...) are skipped.")
@@ -138,14 +137,12 @@ public class ModInstaller
                     next.run();
                 }
             })
-            .setNegativeButton("Cancel", null)
-            .show();
+            .setNegativeButton("Cancel", null));
     }
 
     private void confirm(final File file, final String displayName, final boolean isZip, final Listener l)
     {
-        new AlertDialog.Builder(m_act)
-            .setTitle("Install mod?")
+        N64Ui.show(N64Ui.dialog(m_act, "Install mod?", R.color.n64_blue)
             .setMessage("Install \"" + displayName + "\" (" + (file.length() / 1024) + " KB)?")
             .setPositiveButton("Install", new DialogInterface.OnClickListener()
             {
@@ -170,8 +167,7 @@ public class ModInstaller
                 {
                     l.onFinished(false, null, "Installation cancelled");
                 }
-            })
-            .show();
+            }));
     }
 
     private void analyzeThenInstall(final File file, final String displayName, final boolean isZip, final Listener l)
@@ -210,8 +206,8 @@ public class ModInstaller
             runInstall(file, plan, dest, false, l);
             return;
         }
-        new AlertDialog.Builder(m_act)
-            .setTitle("Already installed")
+        // Replace deletes existing files, so it is red; Keep both (blue) is the safe default
+        AlertDialog dlg = N64Ui.show(N64Ui.dialog(m_act, "Already installed", R.color.n64_red)
             .setMessage("\"" + plan.folderName + "\" already exists in " + base.getAbsolutePath() +
                         ".\nReplace it (existing files, including saves stored inside it, are deleted) or keep both?")
             .setPositiveButton("Replace", new DialogInterface.OnClickListener()
@@ -234,8 +230,10 @@ public class ModInstaller
             {
                 @Override
                 public void onClick(DialogInterface d, int w) { l.onFinished(false, null, "Installation cancelled"); }
-            })
-            .show();
+            }), N64Ui.RED, N64Ui.BLUE, N64Ui.DARK);
+        android.widget.Button keep = dlg.getButton(AlertDialog.BUTTON_NEUTRAL);
+        if(keep != null)
+            keep.requestFocus(); // never default the D-pad to the destructive Replace
     }
 
     private void runInstall(final File file, final Plan plan, final File dest, final boolean replace, final Listener l)
@@ -285,16 +283,14 @@ public class ModInstaller
 
     private void message(String title, String text, final Listener l)
     {
-        new AlertDialog.Builder(m_act)
-            .setTitle(title)
+        N64Ui.show(N64Ui.dialog(m_act, title, R.color.n64_red)
             .setMessage(text)
             .setPositiveButton("OK", new DialogInterface.OnClickListener()
             {
                 @Override
                 public void onClick(DialogInterface d, int w) { l.onFinished(false, null, "Not installed"); }
             })
-            .setCancelable(false)
-            .show();
+            .setCancelable(false));
     }
 
     // ================================================================= Analysis ====
