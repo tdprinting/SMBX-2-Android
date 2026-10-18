@@ -16,12 +16,21 @@ if(USE_SYSTEM_LIBPNG)
     set(libPNG_A_Lib "${PNG_LIBRARIES}")
 
 else()
-    if(NOT MSVC)
+    if(ANDROID)
+        # The libpng fork appends 'd' in Debug builds (libpng16d.a) even with DISABLE_FORCE_DEBUG_POSTFIX,
+        # but always installs the unversioned, postfix-free libpng.a (seen in CI), so link that one.
+        set(PNG_STATICLIB_NAME "png")
+        set(PGE_LIBPNG_DEBUG_SUFFIX_OVERRIDE TRUE)
+    elseif(NOT MSVC)
         set(PNG_STATICLIB_NAME "png16")
     else()
         set(PNG_STATICLIB_NAME "libpng16_static")
     endif()
-    set(libPNG_A_Lib "${DEPENDENCIES_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${PNG_STATICLIB_NAME}${PGE_LIBS_DEBUG_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    if(PGE_LIBPNG_DEBUG_SUFFIX_OVERRIDE)
+        set(libPNG_A_Lib "${DEPENDENCIES_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${PNG_STATICLIB_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    else()
+        set(libPNG_A_Lib "${DEPENDENCIES_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${PNG_STATICLIB_NAME}${PGE_LIBS_DEBUG_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    endif()
     set(PNG_INCLUDE_DIRS "${DEPENDENCIES_INSTALL_DIR}/include")
 
     ExternalProject_Add(
