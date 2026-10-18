@@ -7,14 +7,32 @@ on:
       - main
   workflow_dispatch:
 
+# Release signing and publishing (optional, needs repository secrets):
+#   ANDROID_KEYSTORE_BASE64   base64 of the release keystore: base64 -w0 moondust.jks
+#   ANDROID_KEYSTORE_PASSWORD keystore password
+#   ANDROID_KEY_ALIAS         key alias inside the keystore
+#   ANDROID_KEY_PASSWORD      key password
+# Add them under Settings > Secrets and variables > Actions. Without them the job still passes: it builds an
+# UNSIGNED release APK (best-effort) and publishes nothing. With them, the release APK is signed, verified,
+# and published to the rolling "nightly" prerelease. The same keystore must be used for every build, or
+# installs cannot update each other. Keep the keystore and its passwords out of the repository.
 permissions:
   contents: read
+
+# All Android runs share one group: the rolling "nightly" release is shared by every publishing branch, so
+# overlapping runs must not race each other. An in-progress run is never cancelled (it may be mid-publish).
+concurrency:
+  group: android-build
+  cancel-in-progress: false
 
 jobs:
   android:
     name: Build Android APKs
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    # Needed only by the "nightly" publish step (creates/updates the release and moves its tag).
+    permissions:
+      contents: write
 
     steps:
       # "recursive" is required: SDL2 is a nested submodule of _Libs/AudioCodecs.
@@ -100,7 +118,7 @@ jobs:
       # Primary artifact: the debug APK (arm64-v8a). It is signed with the debug keystore and installable.
       - name: Build debug APK (arm64-v8a)
         working-directory: Engine/android-project
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --stacktrace -PCI_BUILD_NUMBER=${{ github.run_number }}
 
       - name: Diagnose native build outputs (on failure)
         if: failure()
@@ -111,12 +129,161 @@ jobs:
           echo "--- anything png-related ---"
           find . -iname '*png*' \( -name '*.a' -o -name '*.so' \) | sort
 
-      # Best-effort only: CI has no release keystore, so this APK is UNSIGNED and cannot be installed.
-      # Install the debug APK instead. Kept so release-only compile problems still show up in CI logs.
+      # Secrets cannot be read in a step's `if:`, so this step turns the keystore secret into a step output.
+      - name: Detect release signing secrets
+        id: signing
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "Release signing secrets found: the release build will be signed and published."
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::ANDROID_KEYSTORE_BASE64 is not set: the release APK will be unsigned and nothing will be published."
+          fi
+
+      # Writes the keystore to $RUNNER_TEMP (outside the checkout) and exports the MOONDUST_* variables that
+      # Engine/android-project/moondust/build.gradle reads. Secret values are never printed.
+      - name: Decode release keystore and export signing variables
+        if: steps.signing.outputs.enabled == 'true'
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -eu
+          missing=""
+          [ -n "$KEYSTORE_PASSWORD" ] || missing="$missing ANDROID_KEYSTORE_PASSWORD"
+          [ -n "$KEY_ALIAS" ] || missing="$missing ANDROID_KEY_ALIAS"
+          [ -n "$KEY_PASSWORD" ] || missing="$missing ANDROID_KEY_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 is set, but these secrets are empty:$missing"
+            exit 1
+          fi
+
+          KEYSTORE_FILE="$RUNNER_TEMP/moondust.jks"
+          printf '%s' "$KEYSTORE_B64" | tr -d ' \r\n' | base64 --decode > "$KEYSTORE_FILE"
+          chmod 600 "$KEYSTORE_FILE"
+          test -s "$KEYSTORE_FILE" || { echo "::error::Decoded keystore is empty"; exit 1; }
+
+          # Checks the store password and alias (prints only the public certificate fingerprint).
+          # Compare the SHA256 line across runs: it must never change.
+          keytool -list -v -keystore "$KEYSTORE_FILE" -storepass:env KEYSTORE_PASSWORD -alias "$KEY_ALIAS" \
+            | grep 'SHA256:' || { echo "::error::keytool could not open the keystore or find alias $KEY_ALIAS"; exit 1; }
+
+          {
+            echo "MOONDUST_KEYSTORE_FILE=$KEYSTORE_FILE"
+            echo "MOONDUST_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
+            echo "MOONDUST_KEY_ALIAS=$KEY_ALIAS"
+            echo "MOONDUST_KEY_PASSWORD=$KEY_PASSWORD"
+          } >> "$GITHUB_ENV"
+
+      # Signed release build. Any failure fails the job: a release meant to be signed must never fall back to unsigned.
+      - name: Build release APK (arm64-v8a, signed)
+        if: steps.signing.outputs.enabled == 'true'
+        working-directory: Engine/android-project
+        run: ./gradlew assembleRelease --stacktrace -PCI_BUILD_NUMBER=${{ github.run_number }}
+
+      # Without the signing secrets: best-effort only. This APK is UNSIGNED and cannot be installed, and nothing is
+      # published. Kept so release-only compile problems still show up in CI logs.
       - name: Build release APK (arm64-v8a, unsigned, best-effort)
+        if: steps.signing.outputs.enabled != 'true'
         working-directory: Engine/android-project
         continue-on-error: true
-        run: ./gradlew assembleRelease --stacktrace
+        run: ./gradlew assembleRelease --stacktrace -PCI_BUILD_NUMBER=${{ github.run_number }}
+
+      # Confirms the APK is signed with the release key (not the debug key), reads versionCode/versionName from the APK
+      # itself (aapt2), copies it to $RUNNER_TEMP/release, and writes version.json next to it.
+      - name: Verify signature and write version.json
+        if: steps.signing.outputs.enabled == 'true'
+        env:
+          APK: Engine/android-project/moondust/build/outputs/apk/release/moondust-release.apk
+          OUT_DIR: ${{ runner.temp }}/release
+          COMMIT_SHA: ${{ github.sha }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          set -eu
+          BT="$ANDROID_HOME/build-tools/34.0.0"
+          test -f "$APK" || { echo "::error::Signed release APK not found at $APK"; exit 1; }
+
+          echo "--- apksigner verify ---"
+          if ! SIG_INFO=$("$BT/apksigner" verify --print-certs "$APK" 2>&1); then
+            echo "$SIG_INFO"
+            echo "::error::The release APK is unsigned or its signature does not verify."
+            exit 1
+          fi
+          echo "$SIG_INFO"
+          if printf '%s\n' "$SIG_INFO" | grep -q 'Android Debug'; then
+            echo "::error::The release APK is signed with the Android debug key: the release signing config was not applied."
+            exit 1
+          fi
+
+          mkdir -p "$OUT_DIR"
+          # The subject line is the first line of the head commit message.
+          COMMIT_SUBJECT="$(git log -1 --format=%s)" python3 -I - "$APK" "$OUT_DIR" "$BT/aapt2" <<'PY'
+          import hashlib, json, os, re, shutil, subprocess, sys
+
+          apk, out_dir, aapt2 = sys.argv[1], sys.argv[2], sys.argv[3]
+          EXPECTED_PACKAGE = "ru.wohlsoft.moondust"
+
+          def fail(msg):
+              print("::error::" + msg)
+              sys.exit(1)
+
+          res = subprocess.run([aapt2, "dump", "badging", apk], capture_output=True, text=True)
+          if res.returncode != 0:
+              fail("aapt2 dump badging failed: " + res.stderr.strip())
+          pkg_lines = [l for l in res.stdout.splitlines() if l.startswith("package:")]
+          if not pkg_lines:
+              fail("aapt2 printed no 'package:' line")
+          line = pkg_lines[0]
+
+          def field(name):
+              m = re.search(r"(?:^|\s)" + name + r"='([^']*)'", line)
+              if not m:
+                  fail("could not read " + name + " from aapt2 output: " + line)
+              return m.group(1)
+
+          package = field("name")
+          if package != EXPECTED_PACKAGE:
+              fail("APK package is " + package + ", expected " + EXPECTED_PACKAGE)
+          code_str = field("versionCode")
+          if not code_str.isdigit():
+              fail("versionCode is not a number: " + code_str)
+          version_code = int(code_str)
+          version_name = field("versionName")
+          if os.environ.get("RUN_NUMBER"):
+              expected = 100000 + int(os.environ["RUN_NUMBER"])
+              if version_code != expected:
+                  fail("versionCode is " + str(version_code) + ", expected " + str(expected) + " (100000 + run number)")
+
+          os.makedirs(out_dir, exist_ok=True)
+          dst = os.path.join(out_dir, "moondust-release.apk")
+          shutil.copyfile(apk, dst)
+          h = hashlib.sha256()
+          with open(dst, "rb") as f:
+              for chunk in iter(lambda: f.read(1 << 20), b""):
+                  h.update(chunk)
+
+          meta = {
+              "versionCode": version_code,
+              "versionName": version_name,
+              "sha256": h.hexdigest(),
+              "apk": "moondust-release.apk",
+              "commit": os.environ["COMMIT_SHA"],
+              "notes": os.environ.get("COMMIT_SUBJECT", ""),
+          }
+          with open(os.path.join(out_dir, "version.json"), "w", encoding="utf-8") as f:
+              json.dump(meta, f, indent=2)
+              f.write("\n")
+          print(json.dumps(meta, indent=2))
+          PY
+
+      - name: Remove release keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/moondust.jks"
 
       - name: Upload APKs
         if: always()
@@ -126,3 +293,60 @@ jobs:
           path: Engine/android-project/moondust/build/outputs/apk/**/*.apk
           if-no-files-found: warn
           retention-days: 14
+
+      - name: Upload signed release APK and version.json
+        if: steps.signing.outputs.enabled == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: moondust-release-signed
+          path: ${{ runner.temp }}/release/*
+          if-no-files-found: error
+          retention-days: 14
+
+      # Publishes the signed APK as the rolling "nightly" prerelease (pushes to main / the claude branch only).
+      # Order matters so the channel is never left empty: assets are uploaded first when the release exists,
+      # then the tag is moved. Only if moving the tag fails is the release recreated from the local files.
+      - name: Publish rolling "nightly" prerelease
+        if: >-
+          steps.signing.outputs.enabled == 'true' &&
+          github.event_name == 'push' &&
+          github.repository == 'tdprinting/SMBX-2-Android' &&
+          (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/claude/blissful-ride-7jzzut')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RUN_NUMBER: ${{ github.run_number }}
+          OUT_DIR: ${{ runner.temp }}/release
+        run: |
+          set -eu
+          cd "$OUT_DIR"
+          test -s moondust-release.apk && test -s version.json
+
+          SUBJECT="$(git -C "$GITHUB_WORKSPACE" log -1 --format=%s)"
+          NOTES="Rolling nightly build of ${SHA} (CI run #${RUN_NUMBER}), signed with the project release key. Not a stable release. Subject: ${SUBJECT}"
+
+          # Points refs/tags/nightly at $SHA: moves the existing tag, or creates it.
+          move_tag() {
+            if gh api "repos/$REPO/git/ref/tags/nightly" > /dev/null 2>&1; then
+              gh api -X PATCH "repos/$REPO/git/refs/tags/nightly" -f sha="$SHA" -F force=true > /dev/null
+            else
+              gh api -X POST "repos/$REPO/git/refs" -f ref="refs/tags/nightly" -f sha="$SHA" > /dev/null
+            fi
+          }
+
+          if gh release view nightly --repo "$REPO" > /dev/null 2>&1; then
+            gh release upload nightly moondust-release.apk --repo "$REPO" --clobber
+            gh release upload nightly version.json --repo "$REPO" --clobber
+            gh release edit nightly --repo "$REPO" --prerelease --title "Nightly build" --notes "$NOTES"
+            if ! move_tag; then
+              echo "::warning::Could not move the nightly tag through the API; recreating the release from the local files."
+              gh release delete nightly --repo "$REPO" --cleanup-tag --yes
+              gh release create nightly --repo "$REPO" --target "$SHA" --prerelease --title "Nightly build" --notes "$NOTES" moondust-release.apk version.json
+            fi
+          else
+            move_tag
+            gh release create nightly --repo "$REPO" --target "$SHA" --prerelease --title "Nightly build" --notes "$NOTES" moondust-release.apk version.json
+          fi
+
+          gh release view nightly --repo "$REPO" --json url --jq '.url'

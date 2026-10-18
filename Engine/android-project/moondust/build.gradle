@@ -12,6 +12,26 @@ def release_key_alias = System.env.RELEASE_KEY_ALIAS
 def pin_alias = System.env.PIN_ALIAS
 def db_pass_alias = System.env.DB_PASS_ALIAS
 
+// CI build number (GitHub run_number), from -PCI_BUILD_NUMBER=<n> or env CI_BUILD_NUMBER.
+// When set: versionCode = 100000 + n (strictly increasing across CI runs) and ".build<n>" is appended to versionName.
+// When unset (local builds): the computed version code and name are kept.
+def ciBuildNumber = (project.findProperty('CI_BUILD_NUMBER') ?: System.env.CI_BUILD_NUMBER)?.toString()?.trim()
+if (ciBuildNumber != null && ciBuildNumber.isEmpty()) {
+    ciBuildNumber = null
+}
+if (ciBuildNumber != null && !ciBuildNumber.isInteger()) {
+    throw new GradleException("CI_BUILD_NUMBER must be an integer, got '" + ciBuildNumber + "'")
+}
+
+// Release signing for CI publishing. The 'moondustRelease' config is created and attached to the release
+// build type ONLY when all four variables are set. Otherwise release stays unsigned, as before.
+// The keystore is never committed: CI decodes it from a GitHub Actions secret (see .github/workflows/android.yml).
+def moondustKeystoreFile = System.env.MOONDUST_KEYSTORE_FILE
+def moondustKeystorePassword = System.env.MOONDUST_KEYSTORE_PASSWORD
+def moondustKeyAlias = System.env.MOONDUST_KEY_ALIAS
+def moondustKeyPassword = System.env.MOONDUST_KEY_PASSWORD
+def moondustSigningReady = [moondustKeystoreFile, moondustKeystorePassword, moondustKeyAlias, moondustKeyPassword].every { it != null && !it.isEmpty() }
+
 // Only arm64-v8a is built by default. Pass -PALL_ABIS to build every supported ABI.
 def supportedAbis = project.hasProperty('ALL_ABIS') ? ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"] : ["arm64-v8a"]
 
@@ -102,6 +122,14 @@ def xTechVersionNumber = (verNum[0] * 1000000) + (verNum[1] * 10000) + (verNum[2
 
 println "Project version: " + xTechVersionString + ", version code: " + xTechVersionNumber.toString()
 
+// CI builds use 100000 + run number, which only stays above the computed code while the engine major version is 0
+// (the computed code is 1000000 * major + ...). Bump this scheme before the first 1.x release.
+def appVersionName = (ciBuildNumber != null) ? (xTechVersionString + ".build" + ciBuildNumber) : xTechVersionString
+def appVersionCode = (ciBuildNumber != null) ? (100000 + ciBuildNumber.toInteger()) : xTechVersionNumber
+if (ciBuildNumber != null) {
+    println "CI build number: " + ciBuildNumber + ", version code: " + appVersionCode.toString() + ", version name: " + appVersionName
+}
+
 
 android {
     compileSdk 34
@@ -115,8 +143,8 @@ android {
         minSdkVersion 24
         targetSdkVersion 34
 
-        versionName xTechVersionString
-        versionCode xTechVersionNumber
+        versionName appVersionName
+        versionCode appVersionCode
 
         externalNativeBuild {
             cmake {
@@ -136,12 +164,24 @@ android {
             keyAlias = release_key_alias
             keyPassword = release_key_password
         }
+        if (moondustSigningReady) {
+            moondustRelease {
+                storeFile file(moondustKeystoreFile)
+                storePassword = moondustKeystorePassword
+                keyAlias = moondustKeyAlias
+                keyPassword = moondustKeyPassword
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (moondustSigningReady) {
+                // Signed release APK: output is moondust/build/outputs/apk/release/moondust-release.apk
+                signingConfig signingConfigs.moondustRelease
+            }
         }
         releaseci {
             minifyEnabled false
