@@ -102,6 +102,15 @@ jobs:
         working-directory: Engine/android-project
         run: ./gradlew assembleDebug --stacktrace
 
+      - name: Diagnose native build outputs (on failure)
+        if: failure()
+        run: |
+          cd Engine/android-project/moondust/.cxx 2>/dev/null || exit 0
+          echo "--- static libs produced ---"
+          find . -name '*.a' -not -path '*/CMakeFiles/*' | sort
+          echo "--- anything png-related ---"
+          find . -iname '*png*' \( -name '*.a' -o -name '*.so' \) | sort
+
       # Best-effort only: CI has no release keystore, so this APK is UNSIGNED and cannot be installed.
       # Install the debug APK instead. Kept so release-only compile problems still show up in CI logs.
       - name: Build release APK (arm64-v8a, unsigned, best-effort)
