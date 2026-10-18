@@ -12,13 +12,25 @@ def release_key_alias = System.env.RELEASE_KEY_ALIAS
 def pin_alias = System.env.PIN_ALIAS
 def db_pass_alias = System.env.DB_PASS_ALIAS
 
+// Only arm64-v8a is built by default. Pass -PALL_ABIS to build every supported ABI.
+def supportedAbis = project.hasProperty('ALL_ABIS') ? ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"] : ["arm64-v8a"]
+
 def getGitHash() {
-    def stdout = new ByteArrayOutputStream()
-    exec {
-        commandLine 'git', 'rev-parse', '--short', 'HEAD'
-        standardOutput = stdout
+    try {
+        def stdout = new ByteArrayOutputStream()
+        def stderr = new ByteArrayOutputStream()
+        def result = exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+            errorOutput = stderr
+            ignoreExitValue = true
+        }
+        def hash = stdout.toString().trim()
+        return (result.exitValue == 0 && hash) ? hash : 'nogit'
+    } catch (Exception e) {
+        // No git binary, no .git directory or no commits: fall back to a placeholder
+        return 'nogit'
     }
-    return stdout.toString().trim()
 }
 
 def parseVersion(verNum) {
@@ -92,31 +104,28 @@ println "Project version: " + xTechVersionString + ", version code: " + xTechVer
 
 
 android {
-    compileSdkVersion 33
+    compileSdk 34
 
-    // Note: The NDK 23 is SIGNIFICANTLY important, because of the support for non-NEON and older Android versions
-    //       The NDK 24 removes the support for Android 4.1, 4.2, and 4.3.
-    //       See details: https://github.com/android/ndk/wiki/Changelog-r24
-    ndkVersion "23.2.8568313"
+    ndkVersion "26.1.10909125"
 
     defaultConfig {
         if (buildAsApplication) {
             applicationId "ru.wohlsoft.moondust"
         }
-        minSdkVersion 16
-        targetSdkVersion 33
+        minSdkVersion 24
+        targetSdkVersion 34
 
         versionName xTechVersionString
         versionCode xTechVersionNumber
 
         externalNativeBuild {
             cmake {
-                abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
-                arguments "-DANDROID_PLATFORM=16", "-DANDROID_STL=c++_static"
+                abiFilters(*supportedAbis)
+                arguments "-DANDROID_PLATFORM=android-24", "-DANDROID_STL=c++_static"
             }
         }
         ndk{
-            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+            abiFilters(*supportedAbis)
         }
     }
 
