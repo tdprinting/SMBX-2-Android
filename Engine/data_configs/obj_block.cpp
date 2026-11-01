@@ -20,6 +20,7 @@
 #include "config_manager.h"
 #include "config_manager_private.h"
 #include <gui/pge_msgbox.h>
+#include <Logger/logger.h>
 #include <common_features/graphics_funcs.h>
 #include <common_features/number_limiter.h>
 #include <common_features/util.h>
@@ -58,6 +59,7 @@ bool ConfigManager::loadLevelBlock(obj_block &sblock, std::string section, obj_b
             valid = true;
         else
         {
+            pLogWarning("Failed to load block config %s [%s]: %s", iniFile.c_str(), section.c_str(), errStr.c_str());
             addError(errStr);
             valid = false;
         }

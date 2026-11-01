@@ -105,7 +105,7 @@ Standard sideloading. Menu names vary by Android skin, so check the labels on yo
 
 ## Where content goes
 
-The user folder is `/sdcard/Moondust/` (`MOONDUST_ANDROID_SHARED_DIR` in `app_path.cpp`). Earlier builds used `/sdcard/PGE Project/`; that path is no longer used. On first run the engine creates `episodes/`, `configs/` and `mods/`, plus a `.nomedia` file so media scanners skip the folder.
+The user folder is `Moondust/` on the removable SD card (`/storage/<volume-id>/Moondust/`) when a writable SD card is present, otherwise `/sdcard/Moondust/` on internal storage (`androidUserDirectory()` in `app_path.cpp`, mirrored by `ModInstaller.getRoot()`). SD cards are found through `/proc/self/mounts`, because apps may not list `/storage`. A card that Android mounts read-only (for example an NTFS-formatted card) is skipped; format the card as exFAT to use it. Earlier builds used `/sdcard/PGE Project/`; that path is no longer used. On first run the engine creates `episodes/`, `configs/` and `mods/`, plus a `.nomedia` file so media scanners skip the folder.
 
 ```
 /sdcard/Moondust/
@@ -122,6 +122,7 @@ The user folder is `/sdcard/Moondust/` (`MOONDUST_ANDROID_SHARED_DIR` in `app_pa
 - **Config pack (required).** The engine lists the folders in `configs/` and in `mods/<name>/configs/` on the config-select screen. A pack needs `main.ini` and a `data/` folder. Config packs are not in this repository. Use an SMBX64-standard pack.
 - **Episodes.** The Episode menu scans the worlds folder named by the config pack's `worlds` key in `main.ini`, plus `episodes/` and `mods/<name>/episodes/`. Standalone levels can sit directly in those folders.
 - **Fallback folders.** If `/sdcard/Moondust` cannot be created or written (for example, no All files access), the engine uses the app's own external folder under `Android/data/` (the exact path is printed at startup). If that is not writable either, it uses the app's internal files folder. Mods cannot be installed from outside in that case.
+- **Using SMBX2's own content.** SMBX2 ships a PGE config pack in `data/PGE/configs/SMBX2-Integration`. To use it here, copy that pack to `configs/SMBX2/`, copy SMBX2's `data/graphics`, `data/music` and `data/sound` into `configs/SMBX2/data/`, and set `application-dir = 0` in its `main.ini` (the pack otherwise looks for its data next to `smbx.exe`). Put the episode folders from `data/worlds` into `episodes/`. `items/npc/npc-294.ini` needs `image = "npc-294e.png"` because SMBX2 has no in-game sprite for it. Copy with `adb push` of whole folders: unpacking a tar on the device left some files empty. Tested on an AYN Thor with SMBX2 Beta 4.4.1: the title screen, episode list and The Princess Cliché's first level load. Episodes that depend on LunaLua scripts are not expected to work.
 - **Translations.** The build copies `Engine/languages/*.qm` into the APK's `assets/languages` (Gradle task `copyEngineLanguages`, and CMake also copies there). Only `engine_en.qm` is committed. Other `.qm` files exist only when `lrelease` is configured, and then CMake writes them to the build directory instead.
 - **Logs.** The engine writes its messages to stdout and stderr, which SDL forwards to logcat. Filter by text, for example `adb logcat | grep "Mods:"` for the startup mod summary. The exact logcat tag is not verified.
 

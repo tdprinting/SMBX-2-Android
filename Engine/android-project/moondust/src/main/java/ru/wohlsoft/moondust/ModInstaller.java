@@ -15,7 +15,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
@@ -29,7 +32,7 @@ import java.util.zip.ZipFile;
 public class ModInstaller
 {
     // ---------------------------------------------------------------- Destination (EDIT HERE) ----
-    /** Must match MOONDUST_ANDROID_SHARED_DIR ("/sdcard/Moondust") in Engine/common_features/app_path.cpp,
+    /** Must match MOONDUST_ANDROID_DIR_NAME ("Moondust") in Engine/common_features/app_path.cpp,
      *  which creates episodes/, configs/ and mods/ there. Change these if that layout changes. */
     public static final String ROOT_DIR_NAME     = "Moondust";
     public static final String EPISODES_SUBDIR   = "episodes";
@@ -76,9 +79,56 @@ public class ModInstaller
         m_act = act;
     }
 
+    /** Same order as androidUserDirectory() in app_path.cpp: a writable Moondust folder on a removable
+     *  SD card (/storage/<volume-id>/Moondust, volumes in name order) first, then internal shared storage.
+     *  Apps may not list /storage, so volumes are read from the mount table. */
     public static File getRoot()
     {
+        List<String> volumes = new ArrayList<>();
+        try(BufferedReader r = new BufferedReader(new FileReader("/proc/self/mounts")))
+        {
+            String line;
+            while((line = r.readLine()) != null)
+            {
+                String[] f = line.split(" ");
+                if(f.length < 2 || !f[1].startsWith("/storage/"))
+                    continue;
+                String v = f[1].substring(9);
+                if(!v.isEmpty() && v.indexOf('/') < 0 && !volumes.contains(v))
+                    volumes.add(v);
+            }
+        }
+        catch(IOException e)
+        {
+            // No mount table: use internal shared storage
+        }
+        Collections.sort(volumes);
+        for(String v : volumes)
+        {
+            if(v.startsWith(".") || v.equals("emulated") || v.equals("self"))
+                continue;
+            File dir = new File(new File("/storage", v), ROOT_DIR_NAME);
+            if(isWritableDir(dir))
+                return dir;
+        }
         return new File(Environment.getExternalStorageDirectory(), ROOT_DIR_NAME);
+    }
+
+    private static boolean isWritableDir(File dir)
+    {
+        if(!dir.isDirectory() && !dir.mkdirs())
+            return false;
+        File probe = new File(dir, ".moondust_write_test");
+        try
+        {
+            if(!probe.exists() && !probe.createNewFile())
+                return false;
+            return probe.delete();
+        }
+        catch(IOException e)
+        {
+            return false;
+        }
     }
 
     // ================================================================= Public flow ====

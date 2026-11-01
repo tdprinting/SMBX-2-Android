@@ -151,8 +151,10 @@ static void listModEntries(const std::string &modsPath, std::vector<std::string>
 }
 
 #ifdef __ANDROID__
-//! Shared-storage user folder. Writable only with the "All files access" permission on Android 11+.
-#define MOONDUST_ANDROID_SHARED_DIR "/sdcard/Moondust"
+//! Name of the user folder, created at the root of the SD card or of the internal shared storage
+#define MOONDUST_ANDROID_DIR_NAME "Moondust"
+//! Internal shared-storage user folder. Writable only with the "All files access" permission on Android 11+.
+#define MOONDUST_ANDROID_SHARED_DIR "/sdcard/" MOONDUST_ANDROID_DIR_NAME
 
 /**
  * @brief Counts sub-folders which contain at least one episode file (.wld/.wldx)
@@ -215,16 +217,83 @@ static void ensureDir(const std::string &path)
 }
 
 /**
+ * @brief Creates the folder if needed and checks that a file can be written into it
+ *        (a folder may exist but be read-only without the "All files access" permission)
+ */
+static bool isWritableDir(const std::string &path)
+{
+    ensureDir(path);
+    if(!DirMan::exists(path))
+        return false;
+    const std::string probe = withSlash(path) + ".moondust_write_test";
+    SDL_RWops *f = SDL_RWFromFile(probe.c_str(), "wb");
+    if(!f)
+        return false;
+    SDL_RWclose(f);
+    std::remove(probe.c_str());
+    return true;
+}
+
+/**
+ * @brief Finds a writable Moondust folder on a removable SD card: /storage/<volume-id>/Moondust.
+ *        Apps may not list /storage itself, so volumes are taken from the mount table, tried in name order;
+ *        "emulated" (internal storage) and "self" are skipped. A card mounted read-only (for example NTFS) is skipped.
+ *        Keep in sync with ModInstaller.getRoot() on the Java side.
+ * @return Folder path without trailing '/', or empty string if there is no usable SD card
+ */
+static std::string androidSdCardDirectory()
+{
+    std::vector<std::string> volumes;
+    FILE *mounts = std::fopen("/proc/self/mounts", "r");
+    if(mounts)
+    {
+        char line[1024];
+        char dev[256], dir[512];
+        while(std::fgets(line, sizeof(line), mounts))
+        {
+            if(std::sscanf(line, "%255s %511s", dev, dir) != 2)
+                continue;
+            std::string d = dir;
+            if(d.compare(0, 9, "/storage/") != 0)
+                continue;
+            d.erase(0, 9);
+            if(!d.empty() && d.find('/') == std::string::npos &&
+               std::find(volumes.begin(), volumes.end(), d) == volumes.end())
+                volumes.push_back(d);
+        }
+        std::fclose(mounts);
+    }
+    std::sort(volumes.begin(), volumes.end());
+    for(const std::string &v : volumes)
+    {
+        if(v.empty() || v[0] == '.' || v == "emulated" || v == "self")
+            continue;
+        const std::string dir = "/storage/" + v + "/" MOONDUST_ANDROID_DIR_NAME;
+        if(isWritableDir(dir))
+            return dir;
+    }
+    return std::string();
+}
+
+/**
  * @brief Chooses the user folder on Android.
- *        1) /sdcard/Moondust/ if it can be created (needs the "All files access" permission on Android 11+);
- *        2) the app-specific external folder, which needs no permission but is not reachable over USB on Android 11+;
- *        3) empty string: the caller falls back to the app's internal files folder.
+ *        1) <SD card>/Moondust/ if a removable SD card is present and writable (needs "All files access");
+ *        2) /sdcard/Moondust/ (internal shared storage) if it can be created (needs "All files access" on Android 11+);
+ *        3) the app-specific external folder, which needs no permission but is not reachable over USB on Android 11+;
+ *        4) empty string: the caller falls back to the app's internal files folder.
  */
 static std::string androidUserDirectory()
 {
+    const std::string sdCard = androidSdCardDirectory();
+    if(!sdCard.empty())
+    {
+        std::fprintf(stderr, "== Mods: using SD card folder %s\n", sdCard.c_str());
+        std::fflush(stderr);
+        return sdCard;
+    }
+
     const std::string shared = MOONDUST_ANDROID_SHARED_DIR;
-    ensureDir(shared);
-    if(DirMan::exists(shared))
+    if(isWritableDir(shared))
         return shared;
 
     const char *extDir = SDL_AndroidGetExternalStoragePath();
@@ -386,7 +455,7 @@ void AppPathManager::initAppPath()
         return;
 
 #ifdef __ANDROID__
-    // Shared "/sdcard/Moondust" if writable, otherwise the app-specific external folder
+    // SD card "Moondust" folder, else shared "/sdcard/Moondust", else the app-specific external folder
     std::string userDirPath = androidUserDirectory();
 #else
     std::string userDirPath = getPgeUserDirectory();
