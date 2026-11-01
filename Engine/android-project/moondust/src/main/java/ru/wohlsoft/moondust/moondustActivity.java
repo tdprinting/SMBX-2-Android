@@ -72,6 +72,8 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
     private boolean m_selectDown = false, m_startDown = false;
     //! In-app updater: one silent check per launch, runs in the background
     private Updater m_updater = null;
+    //! HUD on the second display of dual-screen devices (null until the activity is set up)
+    private SecondScreen m_secondScreen = null;
     private final Handler m_comboHandler = new Handler(Looper.getMainLooper());
     private final Runnable m_comboRun = new Runnable()
     {
@@ -160,6 +162,9 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
         // a worker thread and only shows a dialog when a newer build exists; it never delays the game start.
         m_updater = new Updater(this);
         m_updater.checkAutomatic();
+
+        m_secondScreen = new SecondScreen(this);
+        m_secondScreen.start();
     }
 
     @Override
@@ -167,6 +172,8 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
     {
         if(m_updater != null)
             m_updater.detach();
+        if(m_secondScreen != null)
+            m_secondScreen.stop();
         InputManager im = (InputManager)getSystemService(Context.INPUT_SERVICE);
         if(im != null)
             im.unregisterInputDeviceListener(this);
@@ -180,6 +187,16 @@ public class moondustActivity extends SDLActivity implements InputManager.InputD
         updateTouchOverlay();
         if(m_updater != null)
             m_updater.onResume();
+        if(m_secondScreen != null)
+            m_secondScreen.start();
+    }
+
+    @Override
+    protected void onPause()
+    {
+        if(m_secondScreen != null)
+            m_secondScreen.stop();
+        super.onPause();
     }
 
     @Override

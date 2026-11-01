@@ -88,6 +88,7 @@ void GlobalSettings::load()
         setup.read("show-debug-info", showDebugInfo, showDebugInfo);
         setup.read("full-screen", fullScreen, fullScreen);
         setup.read("frame-skip", frameSkip, frameSkip);
+        setup.read("second-screen-hud", secondScreenHud, secondScreenHud);
         setup.read("vsync", vsync, vsync);
         setup.read("player1-controller", player1_controller, player1_controller);
         setup.read("player2-controller", player2_controller, player2_controller);
@@ -145,6 +146,7 @@ void GlobalSettings::save()
         setup.setValue("phys-step-time", timeOfFrame);
         setup.setValue("show-debug-info", showDebugInfo);
         setup.setValue("frame-skip", frameSkip);
+        setup.setValue("second-screen-hud", secondScreenHud);
         setup.setValue("full-screen", fullScreen);
         setup.setValue("vsync", vsync);
         setup.setValue("player1-controller", player1_controller);
@@ -184,6 +186,7 @@ void GlobalSettings::resetDefaults()
     vsync = true;
     showDebugInfo = false;
     frameSkip = true;
+    secondScreenHud = true;
     fullScreen = false;
     volume_sound = 128;
     volume_music = 64;

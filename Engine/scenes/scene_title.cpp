@@ -34,6 +34,7 @@
 #include <script/bindings/core/events/luaevents_core_engine.h>
 
 #include "scene_title.h"
+#include <common_features/second_screen.h>
 
 SDL_Thread                      *TitleScene::m_filefind_thread = nullptr;
 std::vector<std::string>         TitleScene::m_filefind_folders;
@@ -153,6 +154,7 @@ TitleScene::~TitleScene()
 
 bool TitleScene::init()
 {
+    SecondScreen::publish(SecondScreen::MODE_TITLE, std::string());
     controller = g_AppSettings.openController(1);
 
     if(!ConfigManager::music_lastIniFile.empty())

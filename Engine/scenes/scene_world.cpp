@@ -29,6 +29,7 @@
 #include <common_features/pge_delay.h>
 #include <common_features/tr.h>
 #include <Utils/maths.h>
+#include <common_features/second_screen.h>
 #include <Utils/dir_list_ci.h>
 #include <controls/controller_keyboard.h>
 #include <controls/controller_joystick.h>
@@ -796,6 +797,18 @@ void WorldScene::processPauseMenuSwitchCharacter()
 void WorldScene::update()
 {
     Scene::update();
+
+    {
+        SecondScreen::Stats stats;
+        stats.lives = static_cast<int>(m_counters.lives);
+        stats.coins = static_cast<int>(m_counters.coins);
+        stats.stars = static_cast<int>(m_counters.stars);
+        stats.points = static_cast<int>(m_counters.points);
+        stats.health = static_cast<int>(m_counters.health);
+        if(m_gameState)
+            stats.characterID = static_cast<int>(m_gameState->getPlayerState(1).characterID);
+        SecondScreen::publish(SecondScreen::MODE_WORLD, m_data.EpisodeTitle, m_levelTitle, stats);
+    }
 
     if(!m_pauseMenu.isShown)
         tickAnimations(uTickf);

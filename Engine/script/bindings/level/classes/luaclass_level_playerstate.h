@@ -33,6 +33,7 @@ class lua_LevelPlayerState
         lua_LevelPlayerState(LevelScene *parent, int playerID);
         lua_LevelPlayerState(const lua_LevelPlayerState &ps);
         int currentHealth();
+        unsigned long currentCharacterID();
         unsigned int countPoints();
         unsigned int countStars();
         unsigned int countCoins();

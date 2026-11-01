@@ -52,6 +52,11 @@ int lua_LevelPlayerState::currentHealth()
     return m_health;
 }
 
+unsigned long lua_LevelPlayerState::currentCharacterID()
+{
+    return m_characterID;
+}
+
 unsigned int lua_LevelPlayerState::countPoints()
 {
     return m_scene->getGameState()->m_gameSave.points;

@@ -44,6 +44,7 @@
 
 #include <script/lua_event.h>
 #include <script/bindings/core/events/luaevents_core_engine.h>
+#include <common_features/second_screen.h>
 #include <fmt_format_ne.h>
 #include <Utils/files.h>
 #include <Utils/maths.h>
@@ -454,7 +455,24 @@ void LevelScene::update()
             // TODO: Implement separated render queue for elements of HUD and provide render functions
             // are will draw HUD elements after world has drawn.
             LuaEngine *sceneLuaEngine = getLuaEngine();
-            if(sceneLuaEngine)
+            bool hudOnSecondScreen = false;
+            if(cam.playerID == 1)
+            {
+                lua_LevelPlayerState &ps = m_playerStates[0];
+                SecondScreen::Stats stats;
+                stats.lives = ps.countLives();
+                stats.coins = static_cast<int>(ps.countCoins());
+                stats.stars = static_cast<int>(ps.countStars());
+                stats.points = static_cast<int>(ps.countPoints());
+                stats.health = ps.currentHealth();
+                stats.characterID = static_cast<int>(ps.currentCharacterID());
+                // Untitled levels (for example episode intros) show their file name
+                SecondScreen::publish(SecondScreen::MODE_LEVEL,
+                                      m_data.LevelName.empty() ? m_data.meta.filename : m_data.LevelName,
+                                      std::string(), stats);
+                hudOnSecondScreen = SecondScreen::hudOnSecondScreen();
+            }
+            if(sceneLuaEngine && !hudOnSecondScreen)
             {
                 if(sceneLuaEngine->isValid() && !sceneLuaEngine->shouldShutdown())
                 {

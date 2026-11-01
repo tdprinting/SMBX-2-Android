@@ -126,6 +126,14 @@ The user folder is `Moondust/` on the removable SD card (`/storage/<volume-id>/M
 - **Translations.** The build copies `Engine/languages/*.qm` into the APK's `assets/languages` (Gradle task `copyEngineLanguages`, and CMake also copies there). Only `engine_en.qm` is committed. Other `.qm` files exist only when `lrelease` is configured, and then CMake writes them to the build directory instead.
 - **Logs.** The engine writes its messages to stdout and stderr, which SDL forwards to logcat. Filter by text, for example `adb logcat | grep "Mods:"` for the startup mod summary. The exact logcat tag is not verified.
 
+## Second screen (dual-screen devices)
+
+On devices with a second display that Android offers for presentations (for example the AYN Thor's 1240x1080 bottom screen), the game shows its HUD there: the level or episode title, the level under the cursor on the world map, lives, stars, coins, score, the item slot (or hearts for Peach, Toad and Link) and the character name. It is drawn with the config pack's own `commonGFX` images and raster fonts (`font2`, `numeric`), at a whole-number scale, so it matches the SMBX2 look. On the title screen it shows the title art and logo. While the HUD is on the second screen, the in-game HUD (the config pack's `onDrawHUD` Lua) is not drawn, which leaves more of the level visible. A touch **Pause** button on the second screen opens the pause menu (it sends Escape).
+
+- Toggle: Options > **Second screen HUD** (saved as `second-screen-hud` in `pge_engine.ini`). Without a second display the option has no effect.
+- Code: `Engine/common_features/second_screen.cpp` (snapshot published by the title, world and level scenes, plus JNI) and `SecondScreen.java` / `RasterFont.java` (Presentation window and drawing). The window is not focusable, so the game keeps gamepad focus.
+- Tested on an AYN Thor: title screen, world map and levels, and the Pause button.
+
 ## Controls (Odin 2 Portal)
 
 Not tested on the device. What the code does:

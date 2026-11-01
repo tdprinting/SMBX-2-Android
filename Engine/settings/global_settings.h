@@ -95,6 +95,9 @@ class GlobalSettings
         //! Enable skipping of frames if real time delay is longer than predefined
         bool frameSkip;
 
+        //! Show the HUD on a second screen (Android dual-screen devices) instead of over the game
+        bool secondScreenHud;
+
         //! Current volume of SFX-es (0...128)
         int volume_sound;
         //! Current volume of music (0...128)

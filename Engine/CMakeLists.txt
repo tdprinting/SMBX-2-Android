@@ -131,6 +131,7 @@ list(APPEND PGE_ENGINE_SRCS
     common_features/app_path.cpp
     common_features/crash_handler.cpp
     common_features/episode_state.cpp
+    common_features/second_screen.cpp
     common_features/fader.cpp
     common_features/graphics_funcs.cpp
     common_features/matrix_animator.cpp

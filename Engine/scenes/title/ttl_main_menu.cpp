@@ -384,6 +384,10 @@ void TitleScene::setMenu(TitleScene::CurrentMenu targetMenu)
                               []()->void{ PGE_MusPlayer::setVolume(g_AppSettings.volume_music); });
         //% "Sound volume"
         m_menu.addIntMenuItem(&g_AppSettings.volume_sound, 0, 128, "vlm_sound", qtTrId("MAINMENU_OPTIONS_SND_VOL"), false);
+#ifdef __ANDROID__
+        // Dual-screen devices: move the HUD to the second display (no effect without one)
+        m_menu.addBoolMenuItem(&g_AppSettings.secondScreenHud, "second_screen", "Second screen HUD");
+#endif
 #ifndef __ANDROID__
         //% "Full Screen mode"
         m_menu.addBoolMenuItem(&g_AppSettings.fullScreen, "full_screen", qtTrId("MAINMENU_OPTIONS_FULLSCR"),
